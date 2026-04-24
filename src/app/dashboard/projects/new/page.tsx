@@ -8,6 +8,7 @@ import Link from 'next/link'
 export default function NewProjectPage() {
     const router = useRouter()
     const supabase = createClient()
+
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
@@ -18,67 +19,90 @@ export default function NewProjectPage() {
         contract_signed_at: '',
     })
 
-    const set = (field: string, value: string) =>
-        setForm(prev => ({ ...prev, [field]: value }))
+    const set = (field: string, value: string) => {
+        setForm((prev) => ({ ...prev, [field]: value }))
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
         setLoading(true)
         setError('')
 
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+            data: { user },
+            error: userError,
+        } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            setError('Сессия не найдена. Пожалуйста, войдите заново.')
+            setLoading(false)
+            router.push('/auth/login')
+            return
+        }
 
         const { data, error } = await supabase
             .from('projects')
             .insert({
-                name: form.name,
+                name: form.name.trim(),
                 type: form.type,
                 status: form.status,
                 contract_signed_at: form.contract_signed_at || null,
-                manager_id: user?.id,
+
+                // creator должен быть обязательно, потому что projects.created_by NOT NULL
+                created_by: user.id,
+
+                // временно делаем текущего пользователя менеджером проекта
+                manager_id: user.id,
             })
-            .select()
+            .select('id')
             .single()
 
         if (error) {
             setError(error.message)
             setLoading(false)
-        } else {
-            router.push(`/dashboard/projects/${data.id}`)
+            return
         }
+
+        router.push(`/dashboard/projects/${data.id}`)
+        router.refresh()
     }
 
     return (
         <div className="max-w-xl">
             <Link
                 href="/dashboard/projects"
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition"
+                className="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-white"
             >
                 <span>←</span>
                 Назад к проектам
             </Link>
 
-            <h1 className="text-2xl font-bold text-white mb-8">Новый проект</h1>
+            <h1 className="mb-8 text-2xl font-bold text-white">Новый проект</h1>
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                    <label className="text-gray-400 text-sm mb-1.5 block">Название объекта *</label>
+                    <label className="mb-1.5 block text-sm text-gray-400">
+                        Название объекта *
+                    </label>
                     <input
                         type="text"
                         value={form.name}
-                        onChange={e => set('name', e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+                        onChange={(e) => set('name', e.target.value)}
+                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white placeholder-gray-500 transition focus:border-blue-500 focus:outline-none"
                         placeholder="Office 1801, VISION TOWER-1, Business Bay"
                         required
                     />
                 </div>
 
                 <div>
-                    <label className="text-gray-400 text-sm mb-1.5 block">Вид проекта</label>
+                    <label className="mb-1.5 block text-sm text-gray-400">
+                        Вид проекта
+                    </label>
                     <select
                         value={form.type}
-                        onChange={e => set('type', e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
+                        onChange={(e) => set('type', e.target.value)}
+                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white transition focus:border-blue-500 focus:outline-none"
                     >
                         <option value="FITOUT">FITOUT</option>
                         <option value="Maintenance">Maintenance</option>
@@ -87,11 +111,13 @@ export default function NewProjectPage() {
                 </div>
 
                 <div>
-                    <label className="text-gray-400 text-sm mb-1.5 block">Статус</label>
+                    <label className="mb-1.5 block text-sm text-gray-400">
+                        Статус
+                    </label>
                     <select
                         value={form.status}
-                        onChange={e => set('status', e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
+                        onChange={(e) => set('status', e.target.value)}
+                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white transition focus:border-blue-500 focus:outline-none"
                     >
                         <option value="active">Активный</option>
                         <option value="on_hold">На паузе</option>
@@ -101,17 +127,19 @@ export default function NewProjectPage() {
                 </div>
 
                 <div>
-                    <label className="text-gray-400 text-sm mb-1.5 block">Дата подписания договора</label>
+                    <label className="mb-1.5 block text-sm text-gray-400">
+                        Дата подписания договора
+                    </label>
                     <input
                         type="date"
                         value={form.contract_signed_at}
-                        onChange={e => set('contract_signed_at', e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
+                        onChange={(e) => set('contract_signed_at', e.target.value)}
+                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white transition focus:border-blue-500 focus:outline-none"
                     />
                 </div>
 
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
+                    <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                         {error}
                     </div>
                 )}
@@ -119,7 +147,7 @@ export default function NewProjectPage() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-xl py-3 transition"
+                    className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-500 disabled:opacity-50"
                 >
                     {loading ? 'Создаём...' : 'Создать проект'}
                 </button>

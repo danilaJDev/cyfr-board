@@ -5,9 +5,6 @@ export async function updateSession(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    console.log('SUPABASE URL EXISTS:', Boolean(supabaseUrl))
-    console.log('SUPABASE ANON KEY EXISTS:', Boolean(supabaseAnonKey))
-
     if (!supabaseUrl || !supabaseAnonKey) {
         console.error('Missing Supabase ENV variables')
         return NextResponse.next({

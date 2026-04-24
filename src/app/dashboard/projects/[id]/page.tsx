@@ -18,7 +18,7 @@ const taskStatusLabels: Record<string, { label: string; color: string }> = {
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { data: project } = await supabase
         .from('projects')
