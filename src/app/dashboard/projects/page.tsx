@@ -19,6 +19,10 @@ const typeLabels: Record<string, string> = {
 export default async function ProjectsPage() {
     const supabase = await createClient()
 
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
+
     const { data: projects } = await supabase
         .from('projects')
         .select(`
@@ -31,6 +35,7 @@ export default async function ProjectsPage() {
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
+        .eq('id', user?.id)
         .single()
 
     const isAdmin = profile?.role === 'admin' || profile?.role === 'manager'
@@ -93,7 +98,7 @@ export default async function ProjectsPage() {
                                 <div className="space-y-3 border-t border-white/5 pt-5 text-sm">
                                     <div className="flex items-center justify-between text-slate-400">
                                         <span className="flex items-center gap-2">
-                                            <Icons.Dashboard className="h-4 w-4" />
+                                            <Icons.File className="h-4 w-4" />
                                             Тип
                                         </span>
                                         <span className="text-white font-medium">{typeLabels[project.type] ?? project.type ?? '—'}</span>
