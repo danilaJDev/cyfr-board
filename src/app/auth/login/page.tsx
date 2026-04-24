@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const AUTH_TIMEOUT_MS = 15000
@@ -21,8 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
 
-  const handleEmailAuth = async (event: FormEvent, mode: 'login' | 'signup') => {
-    event.preventDefault()
+  const handleEmailAuth = async (mode: 'login' | 'signup') => {
     setLoading(mode)
     setError('')
     setMessage('')
@@ -51,7 +50,7 @@ export default function LoginPage() {
         return
       }
 
-      window.location.assign('/dashboard')
+      window.location.href = '/dashboard'
     } catch (authError) {
       if (authError instanceof Error && authError.message === 'AUTH_TIMEOUT') {
         setError('Не удалось завершить вход за 15 секунд. Проверьте интернет/VPN и URL Supabase в .env.local.')
@@ -91,11 +90,15 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl shadow-cyan-900/20 backdrop-blur">
         <h1 className="text-2xl font-semibold text-white">CYFR Board</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Вход для команды CYFR FITOUT L.L.C. (Dubai)
-        </p>
+        <p className="mt-1 text-sm text-slate-400">Вход для команды CYFR FITOUT L.L.C. (Dubai)</p>
 
-        <form className="mt-6 space-y-4">
+        <form
+          className="mt-6 space-y-4"
+          onSubmit={(event) => {
+            event.preventDefault()
+            void handleEmailAuth('login')
+          }}
+        >
           <div>
             <label className="mb-1.5 block text-sm text-slate-300">Email</label>
             <input
@@ -123,15 +126,14 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={!!loading}
-              onClick={(e) => handleEmailAuth(e, 'login')}
               className="rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
             >
               {loading === 'login' ? 'Входим...' : 'Войти'}
             </button>
             <button
-              type="submit"
+              type="button"
               disabled={!!loading}
-              onClick={(e) => handleEmailAuth(e, 'signup')}
+              onClick={() => void handleEmailAuth('signup')}
               className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
             >
               {loading === 'signup' ? 'Создаём...' : 'Регистрация'}
@@ -140,6 +142,7 @@ export default function LoginPage() {
         </form>
 
         <button
+          type="button"
           onClick={handleGoogle}
           disabled={!!loading}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10 disabled:opacity-50"
@@ -156,8 +159,7 @@ export default function LoginPage() {
         )}
 
         <p className="mt-4 text-xs text-slate-500">
-          Если вход подвисает: проверьте `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_ANON_KEY` в
-          `.env.local`.
+          Если вход подвисает: проверьте `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_ANON_KEY` в `.env.local`.
         </p>
       </div>
     </div>
