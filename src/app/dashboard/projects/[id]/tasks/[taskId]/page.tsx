@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import TaskStatusSelect from '@/components/TaskStatusSelect'
 import AttachmentUpload from '@/components/AttachmentUpload'
+import DeleteTaskButton from '@/components/DeleteTaskButton'
 
 const taskStatusLabels: Record<string, { label: string; color: string }> = {
     open:        { label: 'Открыта',   color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
@@ -30,7 +31,7 @@ export default async function TaskPage({
     params: Promise<{ id: string; taskId: string }>
 }) {
     const { id: projectId, taskId } = await params
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { data: task } = await supabase
         .from('tasks')
@@ -59,9 +60,17 @@ export default async function TaskPage({
             </Link>
 
             {/* Заголовок */}
-            <div className="flex items-start justify-between gap-4 mb-6">
-                <h1 className="text-xl font-bold text-white leading-snug">{task.title}</h1>
-                <TaskStatusSelect taskId={task.id} currentStatus={task.status} />
+            <div className="mb-6 flex items-start justify-between gap-4">
+                <h1 className="text-xl font-bold leading-snug text-white">{task.title}</h1>
+                <div className="flex items-center gap-2">
+                    <Link
+                        href={`/dashboard/projects/${projectId}/tasks/${taskId}/edit`}
+                        className="rounded-xl border border-gray-700 px-3 py-2 text-sm text-gray-300 transition hover:border-gray-500 hover:text-white"
+                    >
+                        Изменить
+                    </Link>
+                    <TaskStatusSelect taskId={task.id} currentStatus={task.status} />
+                </div>
             </div>
 
             {/* Мета */}
@@ -118,6 +127,10 @@ export default async function TaskPage({
                     <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">{task.notes}</p>
                 </div>
             )}
+
+            <div className="mb-4 flex justify-end">
+                <DeleteTaskButton taskId={task.id} projectId={projectId} />
+            </div>
 
             {/* Вложения */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
