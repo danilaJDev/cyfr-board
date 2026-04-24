@@ -8,6 +8,8 @@ import { createClient } from '@/lib/supabase/client'
 const navItems = [
   { href: '/dashboard', label: 'Дашборд', icon: '▦' },
   { href: '/dashboard/projects', label: 'Проекты', icon: '◫' },
+  { href: '/dashboard/tasks', label: 'Задачи', icon: '✓' },
+  { href: '/dashboard/team', label: 'Команда', icon: '👥' },
 ]
 
 type SidebarProps = {
