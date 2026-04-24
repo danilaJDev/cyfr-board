@@ -41,7 +41,7 @@ export default function NewProjectPage() {
             return
         }
 
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('projects')
             .insert({
                 name: form.name.trim(),
@@ -55,8 +55,6 @@ export default function NewProjectPage() {
                 // временно делаем текущего пользователя менеджером проекта
                 manager_id: user.id,
             })
-            .select('id')
-            .single()
 
         if (error) {
             setError(error.message)
@@ -64,7 +62,7 @@ export default function NewProjectPage() {
             return
         }
 
-        router.push(`/dashboard/projects/${data.id}`)
+        router.push('/dashboard/projects')
         router.refresh()
     }
 

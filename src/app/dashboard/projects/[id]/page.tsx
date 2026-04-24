@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import DeleteProjectButton from '@/components/DeleteProjectButton'
 
 const statusLabels: Record<string, { label: string; color: string }> = {
     active:      { label: 'Активный',    color: 'bg-green-500/10 text-green-400 border-green-500/20' },
@@ -70,12 +71,20 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                     </div>
                 </div>
                 {isAdmin && (
-                    <Link
-                        href={`/dashboard/projects/${id}/tasks/new`}
-                        className="shrink-0 text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 rounded-xl transition"
-                    >
-                        Добавить задачу
-                    </Link>
+                    <div className="flex shrink-0 items-center gap-2">
+                        <Link
+                            href={`/dashboard/projects/${id}/edit`}
+                            className="text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 rounded-xl transition"
+                        >
+                            Изменить
+                        </Link>
+                        <Link
+                            href={`/dashboard/projects/${id}/tasks/new`}
+                            className="text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 rounded-xl transition"
+                        >
+                            Добавить задачу
+                        </Link>
+                    </div>
                 )}
             </div>
 
@@ -92,6 +101,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                     </div>
                 ))}
             </div>
+
+            {isAdmin && (
+                <div className="mb-8 flex justify-end">
+                    <DeleteProjectButton projectId={id} />
+                </div>
+            )}
 
             {/* Разрешения */}
             <div className="mb-8">
