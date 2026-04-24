@@ -15,7 +15,7 @@ const typeLabels: Record<string, string> = {
 }
 
 export default async function ProjectsPage() {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { data: projects } = await supabase
         .from('projects')

@@ -8,7 +8,7 @@ const taskStatusLabel: Record<string, string> = {
 }
 
 export default async function DashboardPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const [{ count: projectsCount }, { count: tasksCount }, { data: recentTasks }, { data: projects }] =
     await Promise.all([

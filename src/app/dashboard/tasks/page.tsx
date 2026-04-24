@@ -14,7 +14,7 @@ export default async function TasksPage({
   searchParams: Promise<{ status?: string }>
 }) {
   const { status } = await searchParams
-  const supabase = createClient()
+  const supabase = await createClient()
 
   let query = supabase
     .from('tasks')
