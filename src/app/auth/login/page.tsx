@@ -1,89 +1,68 @@
-'use client'
+import { createClient } from '@/lib/supabase/server'
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; message?: string }>
+}) {
+  const params = await searchParams
 
-const AUTH_TIMEOUT_MS = 15000
+  const signIn = async (formData: FormData) => {
+    'use server'
 
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  return await Promise.race([
-    promise,
-    new Promise<T>((_, reject) => {
-      setTimeout(() => reject(new Error('AUTH_TIMEOUT')), timeoutMs)
-    }),
-  ])
-}
+    const email = String(formData.get('email') ?? '')
+    const password = String(formData.get('password') ?? '')
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState<'login' | 'signup' | 'google' | null>(null)
-  const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-  const handleEmailAuth = async (mode: 'login' | 'signup') => {
-    setLoading(mode)
-    setError('')
-    setMessage('')
-
-    try {
-      const supabase = createClient()
-      const response =
-        mode === 'login'
-          ? await withTimeout(supabase.auth.signInWithPassword({ email, password }), AUTH_TIMEOUT_MS)
-          : await withTimeout(
-              supabase.auth.signUp({
-                email,
-                password,
-                options: { emailRedirectTo: `${location.origin}/auth/callback` },
-              }),
-              AUTH_TIMEOUT_MS,
-            )
-
-      if (response.error) {
-        setError(response.error.message)
-        return
-      }
-
-      if (mode === 'signup') {
-        setMessage('Проверьте почту и подтвердите email, чтобы завершить регистрацию.')
-        return
-      }
-
-      window.location.href = '/dashboard'
-    } catch (authError) {
-      if (authError instanceof Error && authError.message === 'AUTH_TIMEOUT') {
-        setError('Не удалось завершить вход за 15 секунд. Проверьте интернет/VPN и URL Supabase в .env.local.')
-        return
-      }
-      setError('Ошибка авторизации. Попробуйте ещё раз.')
-    } finally {
-      setLoading(null)
+    if (error) {
+      redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
     }
+
+    redirect('/dashboard')
   }
 
-  const handleGoogle = async () => {
-    setLoading('google')
-    setError('')
+  const signUp = async (formData: FormData) => {
+    'use server'
 
-    try {
-      const supabase = createClient()
-      const { error: oauthError } = await withTimeout(
-        supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: { redirectTo: `${location.origin}/auth/callback` },
-        }),
-        AUTH_TIMEOUT_MS,
-      )
+    const email = String(formData.get('email') ?? '')
+    const password = String(formData.get('password') ?? '')
 
-      if (oauthError) {
-        setError(oauthError.message)
-      }
-    } catch {
-      setError('Google OAuth не ответил вовремя. Проверьте настройки провайдера в Supabase.')
-    } finally {
-      setLoading(null)
+    const origin = headers().get('origin') ?? 'http://localhost:3000'
+    const supabase = createClient()
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${origin}/auth/callback` },
+    })
+
+    if (error) {
+      redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
     }
+
+    redirect('/auth/login?message=Проверьте%20почту%20для%20подтверждения%20регистрации')
+  }
+
+  const signInWithGoogle = async () => {
+    'use server'
+
+    const origin = headers().get('origin') ?? 'http://localhost:3000'
+    const supabase = createClient()
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${origin}/auth/callback` },
+    })
+
+    if (error || !data.url) {
+      redirect('/auth/login?error=Не%20удалось%20запустить%20Google%20OAuth')
+    }
+
+    redirect(data.url)
   }
 
   return (
@@ -92,30 +71,23 @@ export default function LoginPage() {
         <h1 className="text-2xl font-semibold text-white">CYFR Board</h1>
         <p className="mt-1 text-sm text-slate-400">Вход для команды CYFR FITOUT L.L.C. (Dubai)</p>
 
-        <form
-          className="mt-6 space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void handleEmailAuth('login')
-          }}
-        >
+        <form className="mt-6 space-y-4">
           <div>
             <label className="mb-1.5 block text-sm text-slate-300">Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
               className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
               placeholder="you@cyfr.ae"
               required
             />
           </div>
+
           <div>
             <label className="mb-1.5 block text-sm text-slate-300">Пароль</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
               className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
               placeholder="••••••••"
               required
@@ -125,42 +97,39 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3 pt-1">
             <button
               type="submit"
-              disabled={!!loading}
-              className="rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
+              formAction={signIn}
+              className="rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
             >
-              {loading === 'login' ? 'Входим...' : 'Войти'}
+              Войти
             </button>
+
             <button
-              type="button"
-              disabled={!!loading}
-              onClick={() => void handleEmailAuth('signup')}
-              className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+              type="submit"
+              formAction={signUp}
+              className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
             >
-              {loading === 'signup' ? 'Создаём...' : 'Регистрация'}
+              Регистрация
             </button>
           </div>
+
+          <button
+            type="submit"
+            formAction={signInWithGoogle}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+          >
+            Войти через Google
+          </button>
         </form>
 
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={!!loading}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10 disabled:opacity-50"
-        >
-          {loading === 'google' ? 'Подключаем Google...' : 'Войти через Google'}
-        </button>
-
-        {(error || message) && (
+        {(params.error || params.message) && (
           <p
-            className={`mt-4 rounded-xl px-3 py-2 text-sm ${error ? 'bg-red-500/10 text-red-300' : 'bg-cyan-500/10 text-cyan-200'}`}
+            className={`mt-4 rounded-xl px-3 py-2 text-sm ${
+              params.error ? 'bg-red-500/10 text-red-300' : 'bg-cyan-500/10 text-cyan-200'
+            }`}
           >
-            {error || message}
+            {params.error || params.message}
           </p>
         )}
-
-        <p className="mt-4 text-xs text-slate-500">
-          Если вход подвисает: проверьте `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_ANON_KEY` в `.env.local`.
-        </p>
       </div>
     </div>
   )
