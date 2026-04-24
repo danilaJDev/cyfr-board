@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import ProjectCardActions from '@/components/ProjectCardActions'
 
 const statusLabels: Record<string, { label: string; color: string }> = {
     active:    { label: 'Активный',   color: 'bg-green-500/10 text-green-400 border-green-500/20' },
@@ -61,16 +62,18 @@ export default async function ProjectsPage() {
                     {projects.map((project) => {
                         const status = statusLabels[project.status] ?? statusLabels.active
                         return (
-                            <Link
+                            <div
                                 key={project.id}
-                                href={`/dashboard/projects/${project.id}`}
-                                className="bg-gray-900 border border-gray-800 rounded-2xl p-5 hover:border-gray-600 transition group"
+                                className="group rounded-2xl border border-gray-800 bg-gray-900 p-5 transition hover:border-gray-600"
                             >
-                                <div className="flex items-start justify-between gap-3 mb-3">
-                                    <h2 className="text-white font-semibold text-sm leading-snug group-hover:text-blue-400 transition line-clamp-2">
+                                <div className="mb-3 flex items-start justify-between gap-3">
+                                    <Link
+                                        href={`/dashboard/projects/${project.id}`}
+                                        className="line-clamp-2 text-sm font-semibold leading-snug text-white transition hover:text-blue-400"
+                                    >
                                         {project.name}
-                                    </h2>
-                                    <span className={`shrink-0 text-xs px-2.5 py-1 rounded-full border font-medium ${status.color}`}>
+                                    </Link>
+                                    <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${status.color}`}>
                     {status.label}
                   </span>
                                 </div>
@@ -89,7 +92,9 @@ export default async function ProjectsPage() {
                                     )}
                                     <p>Задач: <span className="text-gray-300">{project.tasks?.[0]?.count ?? 0}</span></p>
                                 </div>
-                            </Link>
+
+                                {isAdmin && <ProjectCardActions projectId={project.id} />}
+                            </div>
                         )
                     })}
                 </div>
