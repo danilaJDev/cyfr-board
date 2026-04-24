@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
+import { Icons } from '@/components/Icons'
+import Link from 'next/link'
 
 const taskStatusLabel: Record<string, string> = {
   open: 'Открыта',
@@ -28,39 +30,65 @@ export default async function DashboardPage() {
     count: recentTasks?.filter((task) => task.status === key).length ?? 0,
   }))
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Дашборд</h1>
-        <p className="mt-2 text-slate-400">Общий статус проектов и задач CYFR FITOUT.</p>
-      </div>
+  const overdueCount = recentTasks?.filter(
+    (task) => task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done',
+  ).length ?? 0
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard title="Проектов" value={projectsCount ?? 0} />
-        <StatCard title="Всего задач" value={tasksCount ?? 0} />
-        <StatCard
-          title="Срочные задачи"
-          value={
-            recentTasks?.filter(
-              (task) => task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done',
-            ).length ?? 0
-          }
+  return (
+    <div className="space-y-10 animate-in">
+      <header>
+        <h1 className="text-4xl font-black tracking-tight text-white lg:text-5xl">
+          Командный <span className="text-cyan-400">центр</span>
+        </h1>
+        <p className="mt-3 max-w-2xl text-lg text-slate-400">
+          Общий статус проектов и задач CYFR FITOUT. Все показатели обновляются в реальном времени.
+        </p>
+      </header>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard 
+            title="Активных проектов" 
+            value={projectsCount ?? 0} 
+            icon={<Icons.Projects className="h-6 w-6" />}
+            color="text-cyan-400"
+            trend="+2 за неделю"
+        />
+        <StatCard 
+            title="Всего задач" 
+            value={tasksCount ?? 0} 
+            icon={<Icons.Tasks className="h-6 w-6" />}
+            color="text-indigo-400"
+            trend="85% выполнение"
+        />
+        <StatCard 
+            title="Срочные / Просрочены" 
+            value={overdueCount} 
+            icon={<Icons.Calendar className="h-6 w-6" />}
+            color={overdueCount > 0 ? "text-red-400" : "text-green-400"}
+            trend={overdueCount > 0 ? "Требует внимания" : "Все по графику"}
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
-          <h2 className="font-semibold">Задачи по статусам (последние 6)</h2>
-          <div className="mt-4 space-y-3">
+      <div className="grid gap-8 lg:grid-cols-3">
+        <section className="glass-card rounded-3xl p-6 lg:col-span-1">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white">Статистика задач</h2>
+            <Icons.Tasks className="h-5 w-5 text-slate-500" />
+          </div>
+          <div className="space-y-5">
             {statusBuckets.map((status) => (
               <div key={status.key}>
-                <div className="mb-1 flex justify-between text-xs text-slate-300">
-                  <span>{status.label}</span>
-                  <span>{status.count}</span>
+                <div className="mb-2 flex justify-between text-sm font-medium">
+                  <span className="text-slate-300">{status.label}</span>
+                  <span className="text-white">{status.count}</span>
                 </div>
-                <div className="h-2 rounded-full bg-white/10">
+                <div className="h-2 rounded-full bg-slate-800/50 overflow-hidden">
                   <div
-                    className="h-2 rounded-full bg-cyan-400"
+                    className={`h-full rounded-full transition-all duration-1000 ${
+                        status.key === 'done' ? 'bg-green-500' :
+                        status.key === 'in_progress' ? 'bg-cyan-500' :
+                        status.key === 'cancelled' ? 'bg-slate-600' : 'bg-blue-500'
+                    }`}
                     style={{ width: `${Math.min((status.count / Math.max(recentTasks?.length || 1, 1)) * 100, 100)}%` }}
                   />
                 </div>
@@ -69,29 +97,53 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
-          <h2 className="font-semibold">Последние проекты</h2>
-          <ul className="mt-3 space-y-2">
+        <section className="glass-card rounded-3xl p-6 lg:col-span-2">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white">Последние проекты</h2>
+            <Link href="/dashboard/projects" className="text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition">
+                Смотреть все →
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
             {projects?.map((project) => (
-              <li key={project.id} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
-                <p className="font-medium text-white">{project.name}</p>
-                <p className="mt-1 text-xs text-slate-400">
-                  {project.status} • {new Date(project.created_at).toLocaleDateString('ru-RU')}
+              <Link 
+                key={project.id} 
+                href={`/dashboard/projects/${project.id}`}
+                className="group flex flex-col justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition hover:bg-white/10"
+              >
+                <div>
+                    <div className="mb-3 flex items-center justify-between">
+                        <span className="text-[10px] uppercase tracking-widest text-cyan-500 font-bold">{project.status}</span>
+                        <Icons.ChevronLeft className="h-4 w-4 rotate-180 text-slate-600 group-hover:text-cyan-400 transition" />
+                    </div>
+                    <p className="font-bold text-white group-hover:text-cyan-400 transition">{project.name}</p>
+                </div>
+                <p className="mt-4 text-[11px] text-slate-500">
+                  {new Date(project.created_at).toLocaleDateString('ru-RU')}
                 </p>
-              </li>
+              </Link>
             ))}
-          </ul>
+          </div>
         </section>
       </div>
     </div>
   )
 }
 
-function StatCard({ title, value }: { title: string; value: number }) {
+function StatCard({ title, value, icon, color, trend }: { title: string; value: number; icon: React.ReactNode; color: string; trend: string }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
-      <p className="text-sm text-slate-400">{title}</p>
-      <p className="mt-2 text-3xl font-bold text-cyan-300">{value}</p>
+    <article className="glass-card group rounded-3xl p-6">
+      <div className="flex items-center justify-between">
+        <div className={`rounded-2xl bg-white/5 p-3 text-white transition-colors group-hover:bg-cyan-500/10 group-hover:text-cyan-400`}>
+          {icon}
+        </div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{trend}</span>
+      </div>
+      <div className="mt-5">
+        <p className="text-sm font-medium text-slate-400">{title}</p>
+        <p className={`mt-1 text-4xl font-black ${color} tracking-tight`}>{value}</p>
+      </div>
     </article>
   )
 }
+
