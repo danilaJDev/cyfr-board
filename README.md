@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CYFR Board
 
-## Getting Started
+Веб-приложение для управления проектами и задачами CYFR FITOUT L.L.C (Dubai).
 
-First, run the development server:
+## Что уже реализовано
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Аутентификация через **email/password** и **Google OAuth** (Supabase Auth).
+- Ролевая модель в профиле (`profiles.role`) и защищённые маршруты через `middleware`.
+- Дашборд с ключевыми показателями, статусами задач и лентой последних проектов.
+- CRUD-поток по проектам и задачам (включая назначение нескольких исполнителей).
+- Вложения к задачам через Supabase Storage.
+- Мобильный first UI + адаптация для desktop.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Стек
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Supabase (Auth + Postgres + Storage)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Локальный запуск
 
-## Learn More
+1. Установить зависимости:
+   ```bash
+   npm install
+   ```
+2. Создать `.env.local`:
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   ```
+3. Запустить dev-сервер:
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+## Деплой на Vercel (бесплатный тариф)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Запушить репозиторий в GitHub.
+2. Импортировать проект в Vercel.
+3. Добавить `NEXT_PUBLIC_SUPABASE_URL` и `NEXT_PUBLIC_SUPABASE_ANON_KEY` в Environment Variables.
+4. Нажать Deploy.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Рекомендуемые следующие шаги
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Добавить полноценную RBAC-политику в Supabase RLS (admin/manager/user).
+- Добавить историю изменений проекта/задачи в отдельную таблицу (`activity_log`) для таймлайна.
+- Подключить графики на основе агрегированных SQL view (по дедлайнам, просрочкам, загрузке команды).

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 
 export default function NewTaskPage() {
     const router = useRouter()
@@ -82,7 +81,7 @@ export default function NewTaskPage() {
                 href={`/dashboard/projects/${projectId}`}
                 className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition"
             >
-                <ArrowLeft size={16} />
+                <span>←</span>
                 Назад к проекту
             </Link>
 

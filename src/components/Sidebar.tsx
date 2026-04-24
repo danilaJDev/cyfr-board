@@ -1,106 +1,108 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FolderKanban, CheckSquare, Users, LogOut, Menu, X } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 
 const navItems = [
-    { href: '/dashboard',          label: 'Дашборд',   icon: LayoutDashboard },
-    { href: '/dashboard/projects', label: 'Проекты',   icon: FolderKanban },
-    { href: '/dashboard/tasks',    label: 'Задачи',    icon: CheckSquare },
-    { href: '/dashboard/team',     label: 'Команда',   icon: Users },
+  { href: '/dashboard', label: 'Дашборд', icon: '▦' },
+  { href: '/dashboard/projects', label: 'Проекты', icon: '◫' },
+  { href: '/dashboard/tasks', label: 'Задачи', icon: '✓' },
+  { href: '/dashboard/team', label: 'Команда', icon: '👥' },
 ]
 
-export default function Sidebar({ profile }: { profile: any }) {
-    const pathname = usePathname()
-    const [open, setOpen] = useState(false)
-    const router = useRouter()
-    const supabase = createClient()
+type SidebarProps = {
+  profile: {
+    full_name?: string | null
+    role?: string | null
+  } | null
+}
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut()
-        router.push('/auth/login')
-    }
+export default function Sidebar({ profile }: SidebarProps) {
+  const pathname = usePathname()
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
 
-    const SidebarContent = () => (
-        <div className="flex flex-col h-full">
-            <div className="p-6 border-b border-gray-800">
-                <p className="text-white font-bold text-lg tracking-tight">CYFR FITOUT</p>
-                <p className="text-gray-500 text-xs mt-0.5">Project Management</p>
-            </div>
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/auth/login')
+  }
 
-            <nav className="flex-1 p-4 space-y-1">
-                {navItems.map(({ href, label, icon: Icon }) => {
-                    const active = pathname === href || pathname.startsWith(href + '/')
-                    return (
-                        <Link
-                            key={href}
-                            href={href}
-                            onClick={() => setOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
-                                active
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                            }`}
-                        >
-                            <Icon size={18} />
-                            {label}
-                        </Link>
-                    )
-                })}
-            </nav>
+  const sidebarContent = (
+    <div className="flex h-full flex-col">
+      <div className="border-b border-white/10 p-6">
+        <p className="text-lg font-bold tracking-tight text-white">CYFR FITOUT</p>
+        <p className="mt-0.5 text-xs text-slate-400">Project command center</p>
+      </div>
 
-            <div className="p-4 border-t border-gray-800">
-                <div className="flex items-center gap-3 px-4 py-3 mb-1">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold">
-                        {profile?.full_name?.[0] ?? '?'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm font-medium truncate">{profile?.full_name ?? 'Пользователь'}</p>
-                        <p className="text-gray-500 text-xs capitalize">{profile?.role ?? 'user'}</p>
-                    </div>
-                </div>
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white text-sm transition"
-                >
-                    <LogOut size={18} />
-                    Выйти
-                </button>
-            </div>
-        </div>
-    )
-
-    return (
-        <>
-            {/* Десктоп сайдбар */}
-            <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-gray-900 border-r border-gray-800 flex-col z-40">
-                <SidebarContent />
-            </aside>
-
-            {/* Мобильная кнопка */}
-            <button
-                onClick={() => setOpen(true)}
-                className="md:hidden fixed top-4 left-4 z-50 bg-gray-900 border border-gray-800 rounded-xl p-2.5 text-white"
+      <nav className="flex-1 space-y-1 p-4">
+        {navItems.map(({ href, label, icon }) => {
+          const active = pathname === href || pathname.startsWith(`${href}/`)
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                active
+                  ? 'bg-cyan-500/20 text-cyan-200 ring-1 ring-cyan-400/30'
+                  : 'text-slate-300 hover:bg-white/5 hover:text-white'
+              }`}
             >
-                <Menu size={20} />
-            </button>
+              <span>{icon}</span>
+              {label}
+            </Link>
+          )
+        })}
+      </nav>
 
-            {/* Мобильный сайдбар */}
-            {open && (
-                <div className="md:hidden fixed inset-0 z-50 flex">
-                    <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
-                    <aside className="relative w-72 bg-gray-900 h-full flex flex-col border-r border-gray-800">
-                        <button onClick={() => setOpen(false)} className="absolute top-4 right-4 text-gray-400">
-                            <X size={20} />
-                        </button>
-                        <SidebarContent />
-                    </aside>
-                </div>
-            )}
-        </>
-    )
+      <div className="border-t border-white/10 p-4">
+        <div className="mb-1 flex items-center gap-3 rounded-xl px-4 py-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 text-sm font-bold text-white">
+            {profile?.full_name?.[0] ?? '?'}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-white">{profile?.full_name ?? 'Пользователь'}</p>
+            <p className="text-xs capitalize text-slate-400">{profile?.role ?? 'user'}</p>
+          </div>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-300 transition hover:bg-white/5 hover:text-white"
+        >
+          <span>↩</span>
+          Выйти
+        </button>
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 border-r border-white/10 bg-slate-950/95 backdrop-blur md:flex md:flex-col">
+        {sidebarContent}
+      </aside>
+
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed left-4 top-4 z-50 rounded-xl border border-white/20 bg-slate-950/90 p-2.5 text-white md:hidden"
+      >
+        ☰
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
+          <aside className="relative h-full w-72 border-r border-white/10 bg-slate-950">
+            <button onClick={() => setOpen(false)} className="absolute right-4 top-4 text-slate-400">
+              ✕
+            </button>
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+    </>
+  )
 }

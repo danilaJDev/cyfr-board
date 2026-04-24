@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Upload } from 'lucide-react'
 
 export default function AttachmentUpload({ taskId }: { taskId: string }) {
     const [uploading, setUploading] = useState(false)
@@ -44,7 +43,7 @@ export default function AttachmentUpload({ taskId }: { taskId: string }) {
 
     return (
         <label className="flex items-center gap-2 cursor-pointer text-blue-400 hover:text-blue-300 text-sm transition w-fit">
-            <Upload size={14} />
+            <span>⬆</span>
             {uploading ? 'Загружаем...' : 'Прикрепить файл'}
             <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>

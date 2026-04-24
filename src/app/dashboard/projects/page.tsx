@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
 
 const statusLabels: Record<string, { label: string; color: string }> = {
     active:    { label: 'Активный',   color: 'bg-green-500/10 text-green-400 border-green-500/20' },
@@ -46,7 +45,7 @@ export default async function ProjectsPage() {
                         href="/dashboard/projects/new"
                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2.5 rounded-xl transition text-sm"
                     >
-                        <Plus size={16} />
+                        <span>＋</span>
                         Новый проект
                     </Link>
                 )}
