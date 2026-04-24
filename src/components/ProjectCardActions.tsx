@@ -33,13 +33,20 @@ export default function ProjectCardActions({ projectId }: { projectId: string })
   }
 
   return (
-    <div className="absolute right-4 top-4 z-10 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+    <div className="absolute right-4 top-4 z-10 flex items-center gap-2 transition-opacity">
+      <Link
+        href={`/dashboard/projects/${projectId}`}
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+        title="Открыть"
+      >
+        <Icons.Eye className="h-5 w-5" />
+      </Link>
       <Link
         href={`/dashboard/projects/${projectId}/edit`}
         className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
         title="Изменить"
       >
-        <Icons.File className="h-5 w-5" />
+        <Icons.Edit className="h-5 w-5" />
       </Link>
       <button
         type="button"
