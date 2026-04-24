@@ -4,12 +4,13 @@ import Link from 'next/link'
 import TaskStatusSelect from '@/components/TaskStatusSelect'
 import AttachmentUpload from '@/components/AttachmentUpload'
 import DeleteTaskButton from '@/components/DeleteTaskButton'
+import { Icons } from '@/components/Icons'
 
 const taskStatusLabels: Record<string, { label: string; color: string }> = {
     open:        { label: 'Открыта',   color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-    in_progress: { label: 'В работе',  color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+    in_progress: { label: 'В работе',  color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
     done:        { label: 'Выполнена', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
-    cancelled:   { label: 'Отменена',  color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+    cancelled:   { label: 'Отменена',  color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' },
 }
 
 interface Attachment {
@@ -50,22 +51,22 @@ export default async function TaskPage({
     const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done'
 
     return (
-        <div className="max-w-2xl">
+        <div className="animate-in">
             <Link
                 href={`/dashboard/projects/${projectId}`}
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition"
+                className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
             >
-                <span>←</span>
+                <Icons.ChevronLeft className="h-4 w-4" />
                 {task.project?.name}
             </Link>
 
             {/* Заголовок */}
-            <div className="mb-6 flex items-start justify-between gap-4">
-                <h1 className="text-xl font-bold leading-snug text-white">{task.title}</h1>
-                <div className="flex items-center gap-2">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="text-3xl font-black leading-snug text-white lg:text-4xl">{task.title}</h1>
+                <div className="flex shrink-0 items-center gap-2">
                     <Link
                         href={`/dashboard/projects/${projectId}/tasks/${taskId}/edit`}
-                        className="rounded-xl border border-gray-700 px-3 py-2 text-sm text-gray-300 transition hover:border-gray-500 hover:text-white"
+                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10 active:scale-95"
                     >
                         Изменить
                     </Link>
@@ -74,22 +75,22 @@ export default async function TaskPage({
             </div>
 
             {/* Мета */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
-                    <p className="text-gray-400 text-xs mb-1">Статус</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${ts.color}`}>
-            {ts.label}
-          </span>
+            <div className="glass-card mb-8 grid grid-cols-2 gap-5 rounded-3xl p-6 sm:grid-cols-3">
+                <div className="flex flex-col">
+                    <p className="mb-1 text-xs text-slate-400">Статус</p>
+                    <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${ts.color}`}>
+                        {ts.label}
+                    </span>
                 </div>
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
-                    <p className="text-gray-400 text-xs mb-1">Дедлайн</p>
+                <div className="flex flex-col">
+                    <p className="mb-1 text-xs text-slate-400">Дедлайн</p>
                     <p className={`text-sm font-medium ${isOverdue ? 'text-red-400' : 'text-white'}`}>
                         {task.deadline ? new Date(task.deadline).toLocaleDateString('ru-RU') : '—'}
                     </p>
                 </div>
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
-                    <p className="text-gray-400 text-xs mb-1">Создана</p>
-                    <p className="text-white text-sm font-medium">
+                <div className="flex flex-col">
+                    <p className="mb-1 text-xs text-slate-400">Создана</p>
+                    <p className="text-sm font-medium text-white">
                         {new Date(task.created_at).toLocaleDateString('ru-RU')}
                     </p>
                 </div>
@@ -97,15 +98,15 @@ export default async function TaskPage({
 
             {/* Ответственные */}
             {task.task_assignees?.length > 0 && (
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
-                    <p className="text-gray-400 text-xs mb-3">Ответственные</p>
-                    <div className="flex flex-wrap gap-2">
+                <div className="glass-card mb-8 rounded-3xl p-6">
+                    <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">Ответственные</p>
+                    <div className="flex flex-wrap gap-3">
                         {task.task_assignees.map((a: Assignee) => (
-                            <div key={a.user.id} className="flex items-center gap-2 bg-gray-800 rounded-xl px-3 py-1.5">
-                                <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                            <div key={a.user.id} className="flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-xs font-bold text-white">
                                     {a.user.full_name?.[0] ?? '?'}
                                 </div>
-                                <span className="text-white text-sm">{a.user.full_name}</span>
+                                <span className="text-sm font-medium text-white">{a.user.full_name}</span>
                             </div>
                         ))}
                     </div>
@@ -114,43 +115,43 @@ export default async function TaskPage({
 
             {/* Описание */}
             {task.description && (
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
-                    <p className="text-gray-400 text-xs mb-2">Описание</p>
-                    <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">{task.description}</p>
+                <div className="glass-card mb-8 rounded-3xl p-6">
+                    <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">Описание</p>
+                    <p className="text-sm leading-relaxed text-white whitespace-pre-wrap">{task.description}</p>
                 </div>
             )}
 
             {/* Примечания */}
             {task.notes && (
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
-                    <p className="text-gray-400 text-xs mb-2">Примечания</p>
-                    <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">{task.notes}</p>
+                <div className="glass-card mb-8 rounded-3xl p-6">
+                    <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">Примечания</p>
+                    <p className="text-sm leading-relaxed text-white whitespace-pre-wrap">{task.notes}</p>
                 </div>
             )}
 
-            <div className="mb-4 flex justify-end">
+            <div className="mb-8 flex justify-end">
                 <DeleteTaskButton taskId={task.id} projectId={projectId} />
             </div>
 
             {/* Вложения */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-4">
-                    <span className="text-gray-400">📎</span>
-                    <p className="text-gray-400 text-xs">Файлы и документы</p>
+            <div className="glass-card rounded-3xl p-6">
+                <div className="mb-5 flex items-center gap-3">
+                    <Icons.Paperclip className="h-5 w-5 text-slate-500" />
+                    <p className="text-xs uppercase tracking-widest text-slate-400">Вложения ({task.attachments?.length ?? 0})</p>
                 </div>
 
                 {task.attachments?.length > 0 && (
-                    <div className="space-y-2 mb-4">
+                    <div className="mb-5 grid gap-3 sm:grid-cols-2">
                         {task.attachments.map((file: Attachment) => (
                             <a
                                 key={file.id}
                                 href={file.file_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 rounded-xl px-3 py-2.5 transition"
+                                className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 transition hover:bg-white/10"
                             >
-                                <span className="shrink-0 text-gray-400">📎</span>
-                                <span className="text-white text-sm truncate">{file.file_name}</span>
+                                <Icons.File className="h-5 w-5 shrink-0 text-slate-400" />
+                                <span className="text-sm font-medium text-white truncate">{file.file_name}</span>
                             </a>
                         ))}
                     </div>

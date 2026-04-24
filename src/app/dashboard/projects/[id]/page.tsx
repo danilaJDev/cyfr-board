@@ -2,19 +2,20 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import DeleteProjectButton from '@/components/DeleteProjectButton'
+import { Icons } from '@/components/Icons'
 
 const statusLabels: Record<string, { label: string; color: string }> = {
-    active:      { label: 'Активный',    color: 'bg-green-500/10 text-green-400 border-green-500/20' },
-    completed:   { label: 'Завершён',    color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-    on_hold:     { label: 'На паузе',    color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-    cancelled:   { label: 'Отменён',     color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+    active:      { label: 'Активный',    color: 'bg-green-500/10 text-green-400 border-green-500/20 shadow-[0_0_10px_rgba(34,197,94,0.1)]' },
+    completed:   { label: 'Завершён',    color: 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]' },
+    on_hold:     { label: 'На паузе',    color: 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.1)]' },
+    cancelled:   { label: 'Отменён',     color: 'bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.1)]' },
 }
 
 const taskStatusLabels: Record<string, { label: string; color: string }> = {
     open:        { label: 'Открыта',     color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-    in_progress: { label: 'В работе',    color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+    in_progress: { label: 'В работе',    color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
     done:        { label: 'Выполнена',   color: 'bg-green-500/10 text-green-400 border-green-500/20' },
-    cancelled:   { label: 'Отменена',    color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+    cancelled:   { label: 'Отменена',    color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' },
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
@@ -46,27 +47,27 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
     const status = statusLabels[project.status] ?? statusLabels.active
 
     return (
-        <div>
+        <div className="animate-in">
             <Link
                 href="/dashboard/projects"
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition"
+                className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
             >
-                <span>←</span>
+                <Icons.ChevronLeft className="h-4 w-4" />
                 Назад к проектам
             </Link>
 
             {/* Заголовок */}
-            <div className="flex items-start justify-between gap-4 mb-8">
+            <div className="mb-8 flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white leading-snug">{project.name}</h1>
-                    <div className="flex items-center gap-3 mt-2 flex-wrap">
-            <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${status.color}`}>
-              {status.label}
-            </span>
+                    <h1 className="text-3xl font-black leading-snug text-white lg:text-4xl">{project.name}</h1>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${status.color}`}>
+                            {status.label}
+                        </span>
                         {project.type && (
-                            <span className="text-xs px-2.5 py-1 rounded-full border border-gray-700 text-gray-400">
-                {project.type}
-              </span>
+                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                {project.type}
+                            </span>
                         )}
                     </div>
                 </div>
@@ -74,32 +75,37 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                     <div className="flex shrink-0 items-center gap-2">
                         <Link
                             href={`/dashboard/projects/${id}/edit`}
-                            className="text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 rounded-xl transition"
+                            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10 active:scale-95"
                         >
                             Изменить
                         </Link>
                         <Link
                             href={`/dashboard/projects/${id}/tasks/new`}
-                            className="text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 rounded-xl transition"
+                            className="flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-cyan-400 active:scale-95"
                         >
-                            Добавить задачу
+                            <Icons.Plus className="h-4 w-4" />
+                            Задача
                         </Link>
                     </div>
                 )}
             </div>
 
             {/* Инфо */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                {[
-                    { label: 'Руководитель проекта', value: project.manager?.full_name ?? '—' },
-                    { label: 'Дата договора', value: project.contract_signed_at ? new Date(project.contract_signed_at).toLocaleDateString('ru-RU') : '—' },
-                    { label: 'Создан', value: new Date(project.created_at).toLocaleDateString('ru-RU') },
-                ].map(({ label, value }) => (
-                    <div key={label} className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
-                        <p className="text-gray-400 text-xs mb-1">{label}</p>
-                        <p className="text-white font-medium text-sm">{value}</p>
-                    </div>
-                ))}
+            <div className="glass-card mb-8 grid grid-cols-1 gap-5 rounded-3xl p-6 sm:grid-cols-3">
+                <div className="flex flex-col">
+                    <p className="mb-1 text-xs text-slate-400">Руководитель проекта</p>
+                    <p className="font-medium text-white">{project.manager?.full_name ?? '—'}</p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="mb-1 text-xs text-slate-400">Дата договора</p>
+                    <p className="font-medium text-white">
+                        {project.contract_signed_at ? new Date(project.contract_signed_at).toLocaleDateString('ru-RU') : '—'}
+                    </p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="mb-1 text-xs text-slate-400">Создан</p>
+                    <p className="font-medium text-white">{new Date(project.created_at).toLocaleDateString('ru-RU')}</p>
+                </div>
             </div>
 
             {isAdmin && (
@@ -109,43 +115,45 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             )}
 
             {/* Разрешения */}
-            <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-white font-semibold flex items-center gap-2">
-                        <span className="text-gray-400">📄</span>
-                        Разрешения
+            <div className="mb-10">
+                <div className="mb-5 flex items-center justify-between">
+                    <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                        <Icons.File className="h-5 w-5 text-slate-500" />
+                        Разрешения ({project.permits?.length ?? 0})
                     </h2>
                     {isAdmin && (
                         <Link
                             href={`/dashboard/projects/${id}/permits/new`}
-                            className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
+                            className="flex items-center gap-1 text-sm font-semibold text-cyan-400 transition hover:text-cyan-300"
                         >
-                            <span>＋</span>
+                            <Icons.Plus className="h-4 w-4" />
                             Добавить
                         </Link>
                     )}
                 </div>
 
                 {!project.permits?.length ? (
-                    <p className="text-gray-500 text-sm">Разрешений нет</p>
+                    <div className="glass-card rounded-3xl py-16 text-center">
+                        <p className="text-slate-500 font-medium">Разрешений пока нет.</p>
+                    </div>
                 ) : (
-                    <div className="space-y-2">
+                    <div className="grid gap-3 sm:grid-cols-2">
                         {project.permits.map((permit: any) => (
-                            <div key={permit.id} className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                            <div key={permit.id} className="glass-card flex items-center justify-between gap-4 rounded-2xl p-4">
                                 <div>
-                                    <p className="text-white text-sm font-medium">{permit.permit_type}</p>
-                                    {permit.notes && <p className="text-gray-400 text-xs mt-0.5">{permit.notes}</p>}
+                                    <p className="text-sm font-medium text-white">{permit.permit_type}</p>
+                                    {permit.notes && <p className="mt-0.5 text-xs text-slate-400">{permit.notes}</p>}
                                 </div>
                                 <div className="text-right shrink-0">
-                  <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                      permit.status === 'received' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                          permit.status === 'expired'  ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                              'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                  }`}>
-                    {permit.status === 'received' ? 'Получено' : permit.status === 'expired' ? 'Истекло' : 'В процессе'}
-                  </span>
+                                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                                        permit.status === 'received' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                                            permit.status === 'expired' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                                'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                    }`}>
+                                        {permit.status === 'received' ? 'Получено' : permit.status === 'expired' ? 'Истекло' : 'В процессе'}
+                                    </span>
                                     {permit.expires_at && (
-                                        <p className="text-gray-500 text-xs mt-1">до {new Date(permit.expires_at).toLocaleDateString('ru-RU')}</p>
+                                        <p className="mt-1 text-xs text-slate-500">до {new Date(permit.expires_at).toLocaleDateString('ru-RU')}</p>
                                     )}
                                 </div>
                             </div>
@@ -156,26 +164,28 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
 
             {/* Задачи */}
             <div>
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-white font-semibold flex items-center gap-2">
-                        <span className="text-gray-400">⏱</span>
+                <div className="mb-5 flex items-center justify-between">
+                    <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                        <Icons.Tasks className="h-5 w-5 text-slate-500" />
                         Задачи ({project.tasks?.length ?? 0})
                     </h2>
                     {isAdmin && (
                         <Link
                             href={`/dashboard/projects/${id}/tasks/new`}
-                            className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
+                            className="flex items-center gap-1 text-sm font-semibold text-cyan-400 transition hover:text-cyan-300"
                         >
-                            <span>＋</span>
+                            <Icons.Plus className="h-4 w-4" />
                             Добавить задачу
                         </Link>
                     )}
                 </div>
 
                 {!project.tasks?.length ? (
-                    <p className="text-gray-500 text-sm">Задач пока нет</p>
+                    <div className="glass-card rounded-3xl py-16 text-center">
+                        <p className="text-slate-500 font-medium">Задач пока нет.</p>
+                    </div>
                 ) : (
-                    <div className="space-y-2">
+                    <div className="grid gap-3">
                         {project.tasks.map((task: any) => {
                             const ts = taskStatusLabels[task.status] ?? taskStatusLabels.open
                             const assignees = task.task_assignees?.map((a: any) => a.user?.full_name).filter(Boolean)
@@ -185,25 +195,36 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                                 <Link
                                     key={task.id}
                                     href={`/dashboard/projects/${id}/tasks/${task.id}`}
-                                    className="bg-gray-900 border border-gray-800 hover:border-gray-600 rounded-xl px-4 py-3 flex items-center justify-between gap-4 transition group"
+                                    className="group glass-card flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between"
                                 >
-                                    <div className="min-w-0">
-                                        <p className="text-white text-sm font-medium group-hover:text-blue-400 transition truncate">
-                                            {task.title}
-                                        </p>
-                                        {assignees?.length > 0 && (
-                                            <p className="text-gray-400 text-xs mt-0.5 truncate">{assignees.join(', ')}</p>
-                                        )}
+                                    <div className="flex items-center gap-4">
+                                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 text-slate-400 transition-colors group-hover:bg-cyan-500/10 group-hover:text-cyan-400`}>
+                                            <Icons.TaskCheck className="h-5 w-5" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-white group-hover:text-cyan-400 transition-colors truncate">
+                                                {task.title}
+                                            </p>
+                                            {assignees?.length > 0 && (
+                                                <p className="mt-0.5 text-xs text-slate-500 truncate">{assignees.join(', ')}</p>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-3 shrink-0">
+                                    <div className="flex items-center gap-4 border-t border-white/5 pt-4 sm:border-0 sm:pt-0">
                                         {task.deadline && (
-                                            <span className={`text-xs ${isOverdue ? 'text-red-400' : 'text-gray-500'}`}>
-                        {new Date(task.deadline).toLocaleDateString('ru-RU')}
-                      </span>
+                                            <div className="text-right">
+                                                <p className={`text-[10px] font-bold uppercase tracking-wider ${isOverdue ? 'text-red-400' : 'text-slate-500'}`}>
+                                                    Дедлайн
+                                                </p>
+                                                <p className={`text-xs font-medium ${isOverdue ? 'text-red-400 font-bold' : 'text-white'}`}>
+                                                    {new Date(task.deadline).toLocaleDateString('ru-RU')}
+                                                </p>
+                                            </div>
                                         )}
-                                        <span className={`text-xs px-2 py-0.5 rounded-full border ${ts.color}`}>
-                      {ts.label}
-                    </span>
+                                        <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${ts.color}`}>
+                                            {ts.label}
+                                        </span>
+                                        <Icons.ChevronLeft className="hidden h-5 w-5 rotate-180 text-slate-700 transition group-hover:text-cyan-400 sm:block" />
                                     </div>
                                 </Link>
                             )

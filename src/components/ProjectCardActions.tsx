@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Icons } from './Icons'
 
 export default function ProjectCardActions({ projectId }: { projectId: string }) {
   const supabase = createClient()
@@ -32,26 +33,22 @@ export default function ProjectCardActions({ projectId }: { projectId: string })
   }
 
   return (
-    <div className="mt-4 flex items-center gap-2">
-      <Link
-        href={`/dashboard/projects/${projectId}`}
-        className="rounded-lg border border-gray-700 px-3 py-1.5 text-xs text-gray-300 transition hover:border-gray-500 hover:text-white"
-      >
-        Открыть
-      </Link>
+    <div className="absolute right-4 top-4 z-10 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
       <Link
         href={`/dashboard/projects/${projectId}/edit`}
-        className="rounded-lg border border-blue-500/40 px-3 py-1.5 text-xs text-blue-300 transition hover:border-blue-400 hover:text-blue-200"
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+        title="Изменить"
       >
-        Изменить
+        <Icons.File className="h-5 w-5" />
       </Link>
       <button
         type="button"
         onClick={handleDelete}
         disabled={loading}
-        className="rounded-lg border border-red-500/40 px-3 py-1.5 text-xs text-red-300 transition hover:border-red-400 hover:text-red-200 disabled:opacity-60"
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-60"
+        title="Удалить"
       >
-        {loading ? 'Удаляем...' : 'Удалить'}
+        {loading ? <Icons.X className="h-5 w-5 animate-spin" /> : <Icons.X className="h-5 w-5" />}
       </button>
     </div>
   )
