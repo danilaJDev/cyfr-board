@@ -1,22 +1,19 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "CYFR Fitout App",
-  description: "Project management application for CYFR Fitout L.L.C",
-};
+  title: 'CYFR Board',
+  description: 'Управление проектами, разрешениями и задачами CYFR FITOUT L.L.C',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="ru">
+      <body>{children}</body>
     </html>
-  );
+  )
 }

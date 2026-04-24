@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Paperclip } from 'lucide-react'
 import TaskStatusSelect from '@/components/TaskStatusSelect'
 import AttachmentUpload from '@/components/AttachmentUpload'
 
@@ -31,7 +30,7 @@ export default async function TaskPage({
     params: Promise<{ id: string; taskId: string }>
 }) {
     const { id: projectId, taskId } = await params
-    const supabase = await createClient()
+    const supabase = createClient()
 
     const { data: task } = await supabase
         .from('tasks')
@@ -55,7 +54,7 @@ export default async function TaskPage({
                 href={`/dashboard/projects/${projectId}`}
                 className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition"
             >
-                <ArrowLeft size={16} />
+                <span>←</span>
                 {task.project?.name}
             </Link>
 
@@ -123,7 +122,7 @@ export default async function TaskPage({
             {/* Вложения */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-4">
-                    <Paperclip size={14} className="text-gray-400" />
+                    <span className="text-gray-400">📎</span>
                     <p className="text-gray-400 text-xs">Файлы и документы</p>
                 </div>
 
@@ -137,7 +136,7 @@ export default async function TaskPage({
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 rounded-xl px-3 py-2.5 transition"
                             >
-                                <Paperclip size={14} className="text-gray-400 shrink-0" />
+                                <span className="shrink-0 text-gray-400">📎</span>
                                 <span className="text-white text-sm truncate">{file.file_name}</span>
                             </a>
                         ))}

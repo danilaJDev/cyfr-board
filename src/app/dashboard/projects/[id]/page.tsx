@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus, FileText, Clock } from 'lucide-react'
 
 const statusLabels: Record<string, { label: string; color: string }> = {
     active:      { label: 'Активный',    color: 'bg-green-500/10 text-green-400 border-green-500/20' },
@@ -19,7 +18,7 @@ const taskStatusLabels: Record<string, { label: string; color: string }> = {
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
-    const supabase = await createClient()
+    const supabase = createClient()
 
     const { data: project } = await supabase
         .from('projects')
@@ -51,7 +50,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 href="/dashboard/projects"
                 className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition"
             >
-                <ArrowLeft size={16} />
+                <span>←</span>
                 Назад к проектам
             </Link>
 
@@ -72,10 +71,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 </div>
                 {isAdmin && (
                     <Link
-                        href={`/dashboard/projects/${id}/edit`}
+                        href={`/dashboard/projects/${id}/tasks/new`}
                         className="shrink-0 text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 rounded-xl transition"
                     >
-                        Редактировать
+                        Добавить задачу
                     </Link>
                 )}
             </div>
@@ -98,7 +97,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-white font-semibold flex items-center gap-2">
-                        <FileText size={16} className="text-gray-400" />
+                        <span className="text-gray-400">📄</span>
                         Разрешения
                     </h2>
                     {isAdmin && (
@@ -106,7 +105,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                             href={`/dashboard/projects/${id}/permits/new`}
                             className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
                         >
-                            <Plus size={14} />
+                            <span>＋</span>
                             Добавить
                         </Link>
                     )}
@@ -144,7 +143,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-white font-semibold flex items-center gap-2">
-                        <Clock size={16} className="text-gray-400" />
+                        <span className="text-gray-400">⏱</span>
                         Задачи ({project.tasks?.length ?? 0})
                     </h2>
                     {isAdmin && (
@@ -152,7 +151,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                             href={`/dashboard/projects/${id}/tasks/new`}
                             className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
                         >
-                            <Plus size={14} />
+                            <span>＋</span>
                             Добавить задачу
                         </Link>
                     )}
