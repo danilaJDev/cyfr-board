@@ -3,10 +3,17 @@ import { Icons } from '@/components/Icons'
 import Link from 'next/link'
 
 const taskStatusLabel: Record<string, string> = {
-  open: 'Открыта',
+  open: 'Новая',
   in_progress: 'В работе',
   done: 'Выполнена',
   cancelled: 'Отменена',
+}
+
+const taskStatusHint: Record<string, string> = {
+  open: 'Только создана, исполнитель ещё не начал работу',
+  in_progress: 'Исполнитель уже работает над задачей',
+  done: 'Задача полностью завершена',
+  cancelled: 'Задача закрыта без выполнения',
 }
 
 const projectStatusLabels: Record<string, { label: string; color: string }> = {
@@ -92,21 +99,36 @@ export default async function DashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="section-card lg:col-span-1">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-base font-bold text-white sm:text-lg">Статистика задач</h2>
+          <div className="mb-6 flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold text-white sm:text-xl">Статусы задач</h2>
+              <p className="mt-1 text-sm leading-5 text-slate-400">
+                Распределение по последним {totalRecent} задачам
+              </p>
+            </div>
             <Icons.Tasks className="h-5 w-5 text-slate-500" />
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {statusBuckets.map((status) => {
               const max = Math.max(totalRecent, 1)
               const percent = Math.min((status.count / max) * 100, 100)
               return (
-                <div key={status.key}>
-                  <div className="mb-1.5 flex items-center justify-between text-xs sm:text-sm">
-                    <span className="font-medium text-slate-300">{status.label}</span>
-                    <span className="font-semibold text-white">{status.count}</span>
+                <div
+                  key={status.key}
+                  className="rounded-xl border border-white/5 bg-slate-900/40 p-3 sm:p-3.5"
+                >
+                  <div className="mb-2 flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-semibold text-white sm:text-base">{status.label}</p>
+                      <p className="mt-0.5 text-xs leading-5 text-slate-400 sm:text-[13px]">
+                        {taskStatusHint[status.key]}
+                      </p>
+                    </div>
+                    <span className="rounded-md bg-white/5 px-2 py-1 text-sm font-semibold text-cyan-300">
+                      {status.count}
+                    </span>
                   </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-800/60">
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-800/70">
                     <div
                       className={`h-full rounded-full transition-all duration-700 ${
                         status.key === 'done'
@@ -120,6 +142,7 @@ export default async function DashboardPage() {
                       style={{ width: `${percent}%` }}
                     />
                   </div>
+                  <p className="mt-2 text-right text-xs text-slate-500">{Math.round(percent)}%</p>
                 </div>
               )
             })}
@@ -128,7 +151,7 @@ export default async function DashboardPage() {
 
         <section className="section-card lg:col-span-2">
           <div className="mb-5 flex items-center justify-between gap-3">
-            <h2 className="text-base font-bold text-white sm:text-lg">Последние проекты</h2>
+            <h2 className="text-lg font-bold text-white sm:text-xl">Последние проекты</h2>
             <Link
               href="/dashboard/projects"
               className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-400 transition hover:text-cyan-300"
@@ -152,11 +175,11 @@ export default async function DashboardPage() {
                         <span className={`chip ${status.color}`}>{status.label}</span>
                         <Icons.ArrowRight className="h-4 w-4 text-slate-600 transition group-hover:text-cyan-400" />
                       </div>
-                      <p className="line-clamp-2 text-sm font-bold text-white transition group-hover:text-cyan-300 sm:text-base">
+                      <p className="line-clamp-2 text-base font-bold leading-6 text-white transition group-hover:text-cyan-300 sm:text-lg">
                         {project.name}
                       </p>
                     </div>
-                    <p className="mt-3 text-[11px] text-slate-500">
+                    <p className="mt-3 text-xs text-slate-500">
                       {new Date(project.created_at).toLocaleDateString('ru-RU')}
                     </p>
                   </Link>
@@ -199,12 +222,12 @@ function StatCard({
         >
           {icon}
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
           {trend}
         </span>
       </div>
       <div className="mt-5">
-        <p className="text-xs font-medium text-slate-400 sm:text-sm">{title}</p>
+        <p className="text-sm font-medium text-slate-300 sm:text-base">{title}</p>
         <p className={`mt-1 text-3xl font-black tracking-tight sm:text-4xl ${color}`}>{value}</p>
       </div>
     </article>
