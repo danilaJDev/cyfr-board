@@ -9,35 +9,27 @@ const taskStatusLabel: Record<string, string> = {
   cancelled: 'Отменена',
 }
 
-const projectStatusLabels: Record<string, { label: string; color: string }> = {
-  active: { label: 'Активный', color: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' },
-  completed: { label: 'Завершён', color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
-  on_hold: { label: 'На паузе', color: 'bg-amber-500/10 text-amber-300 border-amber-500/20' },
-  cancelled: { label: 'Отменён', color: 'bg-red-500/10 text-red-300 border-red-500/20' },
+const projectStatusLabels: Record<string, { label: string; tone: string }> = {
+  active: { label: 'Активный', tone: 'status-success' },
+  completed: { label: 'Завершён', tone: 'status-info' },
+  on_hold: { label: 'На паузе', tone: 'status-warning' },
+  cancelled: { label: 'Отменён', tone: 'status-danger' },
 }
 
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  const [
-    { count: projectsCount },
-    { count: tasksCount },
-    { data: recentTasks },
-    { data: projects },
-  ] = await Promise.all([
-    supabase.from('projects').select('*', { count: 'exact', head: true }),
-    supabase.from('tasks').select('*', { count: 'exact', head: true }),
-    supabase
-      .from('tasks')
-      .select('id, title, status, deadline, created_at, project:projects(name)')
-      .order('created_at', { ascending: false })
-      .limit(8),
-    supabase
-      .from('projects')
-      .select('id, name, status, created_at')
-      .order('created_at', { ascending: false })
-      .limit(6),
-  ])
+  const [{ count: projectsCount }, { count: tasksCount }, { data: recentTasks }, { data: projects }] =
+    await Promise.all([
+      supabase.from('projects').select('*', { count: 'exact', head: true }),
+      supabase.from('tasks').select('*', { count: 'exact', head: true }),
+      supabase
+        .from('tasks')
+        .select('id, title, status, deadline, created_at, project:projects(name)')
+        .order('created_at', { ascending: false })
+        .limit(8),
+      supabase.from('projects').select('id, name, status, created_at').order('created_at', { ascending: false }).limit(6),
+    ])
 
   const statusBuckets = Object.keys(taskStatusLabel).map((key) => ({
     key,
@@ -46,58 +38,30 @@ export default async function DashboardPage() {
   }))
 
   const overdueCount =
-    recentTasks?.filter(
-      (task) =>
-        task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done',
-    ).length ?? 0
+    recentTasks?.filter((task) => task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done').length ?? 0
 
   const totalRecent = recentTasks?.length ?? 0
   const doneCount = recentTasks?.filter((t) => t.status === 'done').length ?? 0
   const completionPercent = totalRecent > 0 ? Math.round((doneCount / totalRecent) * 100) : 0
 
   return (
-    <div className="space-y-8 sm:space-y-10 animate-in">
+    <div className="animate-in space-y-8">
       <header>
-        <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl text-balance">
-          Командный <span className="text-cyan-400">центр</span>
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm text-slate-400 sm:text-base text-pretty">
-          Общий статус проектов и задач CYFR FITOUT. Все показатели обновляются в реальном времени.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Командный центр</h1>
+        <p className="mt-2 text-sm text-muted sm:text-base">Единый обзор проектов, задач и приоритетов команды.</p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-        <StatCard
-          title="Активных проектов"
-          value={projectsCount ?? 0}
-          icon={<Icons.Projects className="h-5 w-5 sm:h-6 sm:w-6" />}
-          color="text-cyan-300"
-          accent="bg-cyan-500/10"
-          trend="Под управлением"
-        />
-        <StatCard
-          title="Всего задач"
-          value={tasksCount ?? 0}
-          icon={<Icons.Tasks className="h-5 w-5 sm:h-6 sm:w-6" />}
-          color="text-indigo-300"
-          accent="bg-indigo-500/10"
-          trend={`${completionPercent}% выполнено`}
-        />
-        <StatCard
-          title="Срочные / Просрочены"
-          value={overdueCount}
-          icon={<Icons.AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6" />}
-          color={overdueCount > 0 ? 'text-red-300' : 'text-emerald-300'}
-          accent={overdueCount > 0 ? 'bg-red-500/10' : 'bg-emerald-500/10'}
-          trend={overdueCount > 0 ? 'Требует внимания' : 'Все по графику'}
-        />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard title="Активных проектов" value={projectsCount ?? 0} icon={<Icons.Projects className="h-5 w-5" />} trend="Под управлением" />
+        <StatCard title="Всего задач" value={tasksCount ?? 0} icon={<Icons.Tasks className="h-5 w-5" />} trend={`${completionPercent}% выполнено`} />
+        <StatCard title="Срочные / Просрочены" value={overdueCount} icon={<Icons.AlertTriangle className="h-5 w-5" />} trend={overdueCount > 0 ? 'Требует внимания' : 'В норме'} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <section className="section-card lg:col-span-1">
+      <div className="grid gap-6 xl:grid-cols-3">
+        <section className="section-card">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-base font-bold text-white sm:text-lg">Статистика задач</h2>
-            <Icons.Tasks className="h-5 w-5 text-slate-500" />
+            <h2 className="text-lg font-semibold">Статусы задач</h2>
+            <Icons.Tasks className="h-5 w-5 text-muted" />
           </div>
           <div className="space-y-4">
             {statusBuckets.map((status) => {
@@ -105,23 +69,12 @@ export default async function DashboardPage() {
               const percent = Math.min((status.count / max) * 100, 100)
               return (
                 <div key={status.key}>
-                  <div className="mb-1.5 flex items-center justify-between text-xs sm:text-sm">
-                    <span className="font-medium text-slate-300">{status.label}</span>
-                    <span className="font-semibold text-white">{status.count}</span>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-muted">{status.label}</span>
+                    <span className="font-semibold">{status.count}</span>
                   </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-800/60">
-                    <div
-                      className={`h-full rounded-full transition-all duration-700 ${
-                        status.key === 'done'
-                          ? 'bg-emerald-500'
-                          : status.key === 'in_progress'
-                          ? 'bg-cyan-500'
-                          : status.key === 'cancelled'
-                          ? 'bg-slate-600'
-                          : 'bg-blue-500'
-                      }`}
-                      style={{ width: `${percent}%` }}
-                    />
+                  <div className="h-2 overflow-hidden rounded-full" style={{ background: 'var(--surface-muted)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${percent}%`, background: 'var(--primary)' }} />
                   </div>
                 </div>
               )
@@ -129,15 +82,11 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="section-card lg:col-span-2">
+        <section className="section-card xl:col-span-2">
           <div className="mb-5 flex items-center justify-between gap-3">
-            <h2 className="text-base font-bold text-white sm:text-lg">Последние проекты</h2>
-            <Link
-              href="/dashboard/projects"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-400 transition hover:text-cyan-300"
-            >
+            <h2 className="text-lg font-semibold">Последние проекты</h2>
+            <Link href="/dashboard/projects" className="text-sm font-semibold" style={{ color: 'var(--primary)' }}>
               Все
-              <Icons.ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           {projects?.length ? (
@@ -145,33 +94,21 @@ export default async function DashboardPage() {
               {projects.map((project) => {
                 const status = projectStatusLabels[project.status] ?? projectStatusLabels.active
                 return (
-                  <Link
-                    key={project.id}
-                    href={`/dashboard/projects/${project.id}`}
-                    className="group flex flex-col justify-between rounded-2xl border border-white/5 bg-white/[0.03] p-4 transition hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-white/[0.06]"
-                  >
+                  <Link key={project.id} href={`/dashboard/projects/${project.id}`} className="surface-soft flex flex-col justify-between rounded-2xl p-4 transition hover:-translate-y-0.5">
                     <div>
                       <div className="mb-3 flex items-center justify-between gap-2">
-                        <span className={`chip ${status.color}`}>{status.label}</span>
-                        <Icons.ArrowRight className="h-4 w-4 text-slate-600 transition group-hover:text-cyan-400" />
+                        <span className={`chip ${status.tone}`}>{status.label}</span>
+                        <Icons.ArrowRight className="h-4 w-4 text-muted" />
                       </div>
-                      <p className="line-clamp-2 text-sm font-bold text-white transition group-hover:text-cyan-300 sm:text-base">
-                        {project.name}
-                      </p>
+                      <p className="line-clamp-2 text-sm font-semibold sm:text-base">{project.name}</p>
                     </div>
-                    <p className="mt-3 text-[11px] text-slate-500">
-                      {new Date(project.created_at).toLocaleDateString('ru-RU')}
-                    </p>
+                    <p className="mt-3 text-xs text-muted">{new Date(project.created_at).toLocaleDateString('ru-RU')}</p>
                   </Link>
                 )
               })}
             </div>
           ) : (
-            <EmptyState
-              title="Проектов ещё нет"
-              description="Создайте первый объект, чтобы начать работу"
-              icon={<Icons.Projects className="h-7 w-7" />}
-            />
+            <EmptyState title="Проектов ещё нет" description="Создайте первый объект, чтобы начать работу" icon={<Icons.Projects className="h-7 w-7" />} />
           )}
         </section>
       </div>
@@ -179,57 +116,29 @@ export default async function DashboardPage() {
   )
 }
 
-function StatCard({
-  title,
-  value,
-  icon,
-  color,
-  accent,
-  trend,
-}: {
-  title: string
-  value: number
-  icon: React.ReactNode
-  color: string
-  accent: string
-  trend: string
-}) {
+function StatCard({ title, value, icon, trend }: { title: string; value: number; icon: React.ReactNode; trend: string }) {
   return (
-    <article className="section-card group transition hover:-translate-y-0.5 hover:border-cyan-400/20">
+    <article className="section-card">
       <div className="flex items-center justify-between">
-        <div
-          className={`flex h-11 w-11 items-center justify-center rounded-xl text-white transition-colors sm:h-12 sm:w-12 ${accent}`}
-        >
-          {icon}
-        </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-          {trend}
-        </span>
+        <div className="surface-soft flex h-11 w-11 items-center justify-center rounded-xl">{icon}</div>
+        <span className="text-xs text-muted">{trend}</span>
       </div>
-      <div className="mt-5">
-        <p className="text-xs font-medium text-slate-400 sm:text-sm">{title}</p>
-        <p className={`mt-1 text-3xl font-black tracking-tight sm:text-4xl ${color}`}>{value}</p>
+      <div className="mt-4">
+        <p className="text-sm text-muted">{title}</p>
+        <p className="mt-1 text-3xl font-bold" style={{ color: 'var(--primary)' }}>{value}</p>
       </div>
     </article>
   )
 }
 
-function EmptyState({
-  title,
-  description,
-  icon,
-}: {
-  title: string
-  description: string
-  icon: React.ReactNode
-}) {
+function EmptyState({ title, description, icon }: { title: string; description: string; icon: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] py-12 text-center">
-      <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white/5 text-slate-500">
+    <div className="surface-soft flex flex-col items-center justify-center rounded-2xl py-12 text-center">
+      <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'var(--surface)' }}>
         {icon}
       </div>
-      <p className="text-sm font-bold text-white">{title}</p>
-      <p className="mt-1 text-xs text-slate-500">{description}</p>
+      <p className="text-sm font-semibold">{title}</p>
+      <p className="mt-1 text-xs text-muted">{description}</p>
     </div>
   )
 }
