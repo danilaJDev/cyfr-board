@@ -131,7 +131,7 @@ export default async function DashboardPage() {
             <h2 className="text-base font-bold text-white sm:text-lg">Последние проекты</h2>
             <Link
               href="/dashboard/projects"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-400 transition hover:text-cyan-300"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-cyan-400 transition hover:text-cyan-300 sm:text-lg"
             >
               Все
               <Icons.ArrowRight className="h-4 w-4" />
@@ -199,12 +199,12 @@ function StatCard({
         >
           {icon}
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <span className="font-medium text-slate-300">
           {trend}
         </span>
       </div>
       <div className="mt-5">
-        <p className="text-xs font-medium text-slate-400 sm:text-sm">{title}</p>
+        <p className="text-base font-bold text-white sm:text-lg">{title}</p>
         <p className={`mt-1 text-3xl font-black tracking-tight sm:text-4xl ${color}`}>{value}</p>
       </div>
     </article>
