@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Icons } from '@/components/Icons'
 
 export default function NewProjectPage() {
     const router = useRouter()
@@ -41,23 +42,17 @@ export default function NewProjectPage() {
             return
         }
 
-        const { error } = await supabase
-            .from('projects')
-            .insert({
-                name: form.name.trim(),
-                type: form.type,
-                status: form.status,
-                contract_signed_at: form.contract_signed_at || null,
+        const { error: insertError } = await supabase.from('projects').insert({
+            name: form.name.trim(),
+            type: form.type,
+            status: form.status,
+            contract_signed_at: form.contract_signed_at || null,
+            created_by: user.id,
+            manager_id: user.id,
+        })
 
-                // creator должен быть обязательно, потому что projects.created_by NOT NULL
-                created_by: user.id,
-
-                // временно делаем текущего пользователя менеджером проекта
-                manager_id: user.id,
-            })
-
-        if (error) {
-            setError(error.message)
+        if (insertError) {
+            setError(insertError.message)
             setLoading(false)
             return
         }
@@ -67,89 +62,120 @@ export default function NewProjectPage() {
     }
 
     return (
-        <div className="max-w-xl">
-            <Link
-                href="/dashboard/projects"
-                className="mb-6 inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-white"
-            >
-                <span>←</span>
-                Назад к проектам
-            </Link>
-
-            <h1 className="mb-8 text-2xl font-bold text-white">Новый проект</h1>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                    <label className="mb-1.5 block text-sm text-gray-400">
-                        Название объекта *
-                    </label>
-                    <input
-                        type="text"
-                        value={form.name}
-                        onChange={(e) => set('name', e.target.value)}
-                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white placeholder-gray-500 transition focus:border-blue-500 focus:outline-none"
-                        placeholder="Office 1801, VISION TOWER-1, Business Bay"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label className="mb-1.5 block text-sm text-gray-400">
-                        Вид проекта
-                    </label>
-                    <select
-                        value={form.type}
-                        onChange={(e) => set('type', e.target.value)}
-                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white transition focus:border-blue-500 focus:outline-none"
-                    >
-                        <option value="FITOUT">FITOUT</option>
-                        <option value="Maintenance">Maintenance</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="mb-1.5 block text-sm text-gray-400">
-                        Статус
-                    </label>
-                    <select
-                        value={form.status}
-                        onChange={(e) => set('status', e.target.value)}
-                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white transition focus:border-blue-500 focus:outline-none"
-                    >
-                        <option value="active">Активный</option>
-                        <option value="on_hold">На паузе</option>
-                        <option value="completed">Завершён</option>
-                        <option value="cancelled">Отменён</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="mb-1.5 block text-sm text-gray-400">
-                        Дата подписания договора
-                    </label>
-                    <input
-                        type="date"
-                        value={form.contract_signed_at}
-                        onChange={(e) => set('contract_signed_at', e.target.value)}
-                        className="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white transition focus:border-blue-500 focus:outline-none"
-                    />
-                </div>
-
-                {error && (
-                    <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                        {error}
-                    </div>
-                )}
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-500 disabled:opacity-50"
+        <div className="mx-auto max-w-2xl animate-in">
+            <div className="mb-6 sm:mb-8">
+                <Link
+                    href="/dashboard/projects"
+                    className="mb-3 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-cyan-400"
                 >
-                    {loading ? 'Создаём...' : 'Создать проект'}
-                </button>
-            </form>
+                    <Icons.ArrowLeft className="h-4 w-4" />
+                    Назад к проектам
+                </Link>
+                <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+                    Новый проект
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">
+                    Заполните основную информацию об объекте
+                </p>
+            </div>
+
+            <div className="section-card">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label htmlFor="name" className="label-base">
+                            Название объекта *
+                        </label>
+                        <input
+                            id="name"
+                            type="text"
+                            value={form.name}
+                            onChange={(e) => set('name', e.target.value)}
+                            className="input-base"
+                            placeholder="Office 1801, VISION TOWER-1, Business Bay"
+                            required
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div>
+                            <label htmlFor="type" className="label-base">
+                                Вид проекта
+                            </label>
+                            <select
+                                id="type"
+                                value={form.type}
+                                onChange={(e) => set('type', e.target.value)}
+                                className="input-base"
+                            >
+                                <option value="FITOUT">FITOUT</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="status" className="label-base">
+                                Статус
+                            </label>
+                            <select
+                                id="status"
+                                value={form.status}
+                                onChange={(e) => set('status', e.target.value)}
+                                className="input-base"
+                            >
+                                <option value="active">Активный</option>
+                                <option value="on_hold">На паузе</option>
+                                <option value="completed">Завершён</option>
+                                <option value="cancelled">Отменён</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="contract_signed_at" className="label-base">
+                            Дата подписания договора
+                        </label>
+                        <input
+                            id="contract_signed_at"
+                            type="date"
+                            value={form.contract_signed_at}
+                            onChange={(e) => set('contract_signed_at', e.target.value)}
+                            className="input-base"
+                        />
+                    </div>
+
+                    {error && (
+                        <div
+                            role="alert"
+                            className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+                        >
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
+                        <Link
+                            href="/dashboard/projects"
+                            className="btn-secondary justify-center"
+                        >
+                            Отмена
+                        </Link>
+                        <button type="submit" disabled={loading} className="btn-primary justify-center">
+                            {loading ? (
+                                <>
+                                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                                    Создаём...
+                                </>
+                            ) : (
+                                <>
+                                    <Icons.Plus className="h-4 w-4" />
+                                    Создать проект
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     )
 }

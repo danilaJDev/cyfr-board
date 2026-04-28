@@ -3,18 +3,19 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { Icons } from './Icons'
 
 const options = [
-    { value: 'open',        label: 'Открыта',   color: 'text-blue-400' },
-    { value: 'in_progress', label: 'В работе',  color: 'text-purple-400' },
-    { value: 'done',        label: 'Выполнена', color: 'text-green-400' },
-    { value: 'cancelled',   label: 'Отменена',  color: 'text-red-400' },
+    { value: 'open', label: 'Открыта', color: 'text-blue-300' },
+    { value: 'in_progress', label: 'В работе', color: 'text-cyan-300' },
+    { value: 'done', label: 'Выполнена', color: 'text-emerald-300' },
+    { value: 'cancelled', label: 'Отменена', color: 'text-slate-300' },
 ]
 
 export default function TaskStatusSelect({
-                                             taskId,
-                                             currentStatus,
-                                         }: {
+    taskId,
+    currentStatus,
+}: {
     taskId: string
     currentStatus: string
 }) {
@@ -31,20 +32,32 @@ export default function TaskStatusSelect({
         router.refresh()
     }
 
-    const current = options.find(o => o.value === status)
+    const current = options.find((o) => o.value === status)
 
     return (
-        <select
-            value={status}
-            onChange={e => handleChange(e.target.value)}
-            disabled={loading}
-            className={`bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:border-blue-500 transition shrink-0 ${current?.color}`}
-        >
-            {options.map(o => (
-                <option key={o.value} value={o.value} className="text-white">
-                    {o.label}
-                </option>
-            ))}
-        </select>
+        <div className="relative">
+            <select
+                value={status}
+                onChange={(e) => handleChange(e.target.value)}
+                disabled={loading}
+                aria-label="Изменить статус задачи"
+                className={`appearance-none rounded-xl border border-white/10 bg-slate-900/60 px-4 py-2.5 pr-10 text-sm font-semibold transition outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 ${
+                    current?.color ?? 'text-white'
+                }`}
+            >
+                {options.map((o) => (
+                    <option key={o.value} value={o.value} className="text-white">
+                        {o.label}
+                    </option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                {loading ? (
+                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                ) : (
+                    <Icons.ChevronDown className="h-4 w-4" />
+                )}
+            </div>
+        </div>
     )
 }

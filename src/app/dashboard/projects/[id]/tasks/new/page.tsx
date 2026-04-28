@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import { Icons } from '@/components/Icons'
+
+type TeamMember = {
+    id: string
+    full_name: string | null
+    role: string | null
+}
 
 export default function NewTaskPage() {
     const router = useRouter()
@@ -13,7 +20,7 @@ export default function NewTaskPage() {
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    const [team, setTeam] = useState<any[]>([])
+    const [team, setTeam] = useState<TeamMember[]>([])
     const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
 
     const [form, setForm] = useState({
@@ -25,17 +32,21 @@ export default function NewTaskPage() {
     })
 
     useEffect(() => {
-        supabase.from('profiles').select('id, full_name, role').then(({ data }) => {
-            if (data) setTeam(data)
-        })
-    }, [])
+        supabase
+            .from('profiles')
+            .select('id, full_name, role')
+            .order('full_name', { ascending: true })
+            .then(({ data }) => {
+                if (data) setTeam(data as TeamMember[])
+            })
+    }, [supabase])
 
     const set = (field: string, value: string) =>
-        setForm(prev => ({ ...prev, [field]: value }))
+        setForm((prev) => ({ ...prev, [field]: value }))
 
     const toggleAssignee = (id: string) =>
-        setSelectedAssignees(prev =>
-            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        setSelectedAssignees((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
         )
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +54,9 @@ export default function NewTaskPage() {
         setLoading(true)
         setError('')
 
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+            data: { user },
+        } = await supabase.auth.getUser()
 
         const { data: task, error: taskError } = await supabase
             .from('tasks')
@@ -65,140 +78,196 @@ export default function NewTaskPage() {
             return
         }
 
-        // Назначаем ответственных
         if (selectedAssignees.length > 0) {
-            await supabase.from('task_assignees').insert(
-                selectedAssignees.map(userId => ({ task_id: task.id, user_id: userId }))
-            )
+            await supabase
+                .from('task_assignees')
+                .insert(
+                    selectedAssignees.map((userId) => ({ task_id: task.id, user_id: userId })),
+                )
         }
 
         router.push(`/dashboard/projects/${projectId}/tasks/${task.id}`)
     }
 
     return (
-        <div className="max-w-xl">
-            <Link
-                href={`/dashboard/projects/${projectId}`}
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition"
-            >
-                <span>←</span>
-                Назад к проекту
-            </Link>
+        <div className="mx-auto max-w-2xl animate-in">
+            <div className="mb-6 sm:mb-8">
+                <Link
+                    href={`/dashboard/projects/${projectId}`}
+                    className="mb-3 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-cyan-400"
+                >
+                    <Icons.ArrowLeft className="h-4 w-4" />
+                    Назад к проекту
+                </Link>
+                <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+                    Новая задача
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">Добавьте задачу и назначьте ответственных</p>
+            </div>
 
-            <h1 className="text-2xl font-bold text-white mb-8">Новая задача</h1>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                    <label className="text-gray-400 text-sm mb-1.5 block">Название *</label>
-                    <input
-                        type="text"
-                        value={form.title}
-                        onChange={e => set('title', e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
-                        placeholder="Получить NOC от управляющей компании"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label className="text-gray-400 text-sm mb-1.5 block">Описание</label>
-                    <textarea
-                        value={form.description}
-                        onChange={e => set('description', e.target.value)}
-                        rows={3}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition resize-none"
-                        placeholder="Подробное описание задачи..."
-                    />
-                </div>
-
-                <div>
-                    <label className="text-gray-400 text-sm mb-1.5 block">Примечания</label>
-                    <textarea
-                        value={form.notes}
-                        onChange={e => set('notes', e.target.value)}
-                        rows={2}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition resize-none"
-                        placeholder="Доп. заметки..."
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+            <div className="section-card">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="text-gray-400 text-sm mb-1.5 block">Статус</label>
-                        <select
-                            value={form.status}
-                            onChange={e => set('status', e.target.value)}
-                            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
-                        >
-                            <option value="open">Открыта</option>
-                            <option value="in_progress">В работе</option>
-                            <option value="done">Выполнена</option>
-                            <option value="cancelled">Отменена</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="text-gray-400 text-sm mb-1.5 block">Дедлайн</label>
+                        <label htmlFor="title" className="label-base">
+                            Название *
+                        </label>
                         <input
-                            type="date"
-                            value={form.deadline}
-                            onChange={e => set('deadline', e.target.value)}
-                            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
+                            id="title"
+                            type="text"
+                            value={form.title}
+                            onChange={(e) => set('title', e.target.value)}
+                            className="input-base"
+                            placeholder="Получить NOC от управляющей компании"
+                            required
                         />
                     </div>
-                </div>
 
-                {/* Ответственные */}
-                <div>
-                    <label className="text-gray-400 text-sm mb-2 block">Ответственные</label>
-                    <div className="space-y-2">
-                        {team.map(member => (
-                            <label
-                                key={member.id}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition ${
-                                    selectedAssignees.includes(member.id)
-                                        ? 'border-blue-500 bg-blue-500/10'
-                                        : 'border-gray-700 bg-gray-900 hover:border-gray-500'
-                                }`}
-                            >
-                                <input
-                                    type="checkbox"
-                                    className="hidden"
-                                    checked={selectedAssignees.includes(member.id)}
-                                    onChange={() => toggleAssignee(member.id)}
-                                />
-                                <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                                    {member.full_name?.[0] ?? '?'}
-                                </div>
-                                <div>
-                                    <p className="text-white text-sm font-medium">{member.full_name ?? 'Без имени'}</p>
-                                    <p className="text-gray-400 text-xs capitalize">{member.role}</p>
-                                </div>
-                                {selectedAssignees.includes(member.id) && (
-                                    <div className="ml-auto w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
-                                        <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                                            <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </div>
-                                )}
+                    <div>
+                        <label htmlFor="description" className="label-base">
+                            Описание
+                        </label>
+                        <textarea
+                            id="description"
+                            value={form.description}
+                            onChange={(e) => set('description', e.target.value)}
+                            rows={4}
+                            className="input-base"
+                            placeholder="Подробное описание задачи..."
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="notes" className="label-base">
+                            Примечания
+                        </label>
+                        <textarea
+                            id="notes"
+                            value={form.notes}
+                            onChange={(e) => set('notes', e.target.value)}
+                            rows={2}
+                            className="input-base"
+                            placeholder="Доп. заметки..."
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div>
+                            <label htmlFor="status" className="label-base">
+                                Статус
                             </label>
-                        ))}
+                            <select
+                                id="status"
+                                value={form.status}
+                                onChange={(e) => set('status', e.target.value)}
+                                className="input-base"
+                            >
+                                <option value="open">Открыта</option>
+                                <option value="in_progress">В работе</option>
+                                <option value="done">Выполнена</option>
+                                <option value="cancelled">Отменена</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="deadline" className="label-base">
+                                Дедлайн
+                            </label>
+                            <input
+                                id="deadline"
+                                type="date"
+                                value={form.deadline}
+                                onChange={(e) => set('deadline', e.target.value)}
+                                className="input-base"
+                            />
+                        </div>
                     </div>
-                </div>
 
-                {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
-                        {error}
+                    <div>
+                        <label className="label-base">Ответственные</label>
+                        {team.length === 0 ? (
+                            <p className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-3 text-xs text-slate-500">
+                                Нет доступных сотрудников
+                            </p>
+                        ) : (
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                {team.map((member) => {
+                                    const checked = selectedAssignees.includes(member.id)
+                                    return (
+                                        <label
+                                            key={member.id}
+                                            className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition ${
+                                                checked
+                                                    ? 'border-cyan-500/50 bg-cyan-500/10 ring-2 ring-cyan-500/20'
+                                                    : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                                            }`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="hidden"
+                                                checked={checked}
+                                                onChange={() => toggleAssignee(member.id)}
+                                            />
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-800 text-xs font-bold uppercase text-white">
+                                                {member.full_name?.[0] ?? '?'}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-sm font-medium text-white">
+                                                    {member.full_name ?? 'Без имени'}
+                                                </p>
+                                                <p className="truncate text-xs capitalize text-slate-400">
+                                                    {member.role}
+                                                </p>
+                                            </div>
+                                            <div
+                                                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                                                    checked
+                                                        ? 'border-cyan-400 bg-cyan-400'
+                                                        : 'border-slate-600'
+                                                }`}
+                                                aria-hidden
+                                            >
+                                                {checked && (
+                                                    <Icons.Check className="h-3 w-3 text-slate-950" />
+                                                )}
+                                            </div>
+                                        </label>
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
-                )}
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-xl py-3 transition"
-                >
-                    {loading ? 'Создаём...' : 'Создать задачу'}
-                </button>
-            </form>
+                    {error && (
+                        <div
+                            role="alert"
+                            className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+                        >
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
+                        <Link
+                            href={`/dashboard/projects/${projectId}`}
+                            className="btn-secondary justify-center"
+                        >
+                            Отмена
+                        </Link>
+                        <button type="submit" disabled={loading} className="btn-primary justify-center">
+                            {loading ? (
+                                <>
+                                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                                    Создаём...
+                                </>
+                            ) : (
+                                <>
+                                    <Icons.Plus className="h-4 w-4" />
+                                    Создать задачу
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     )
 }

@@ -4,15 +4,45 @@
     color-scheme: dark;
     --primary: 6, 182, 212;
     --primary-foreground: 15, 23, 42;
+    --surface-1: 15, 23, 42;
+    --surface-2: 30, 41, 59;
+    --border-soft: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --shadow-card: 0 10px 40px -12px rgba(2, 6, 23, 0.6);
+    --shadow-glow: 0 0 30px rgba(6, 182, 212, 0.18);
+    --radius-card: 1.25rem;
+}
+
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
     @apply bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500/30;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji";
     background-image:
-            radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.15), transparent 40%),
-            radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.12), transparent 40%),
-            radial-gradient(circle at 50% 100%, rgba(14, 165, 233, 0.08), transparent 40%);
+            radial-gradient(circle at 12% 18%, rgba(14, 165, 233, 0.18), transparent 45%),
+            radial-gradient(circle at 88% 8%, rgba(99, 102, 241, 0.14), transparent 45%),
+            radial-gradient(circle at 50% 110%, rgba(14, 165, 233, 0.10), transparent 50%);
     background-attachment: fixed;
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+
+/* Prevent layout shifts on mobile when virtual keyboard appears */
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+    }
 }
 
 @layer utilities {
@@ -24,24 +54,105 @@ body {
         @apply border border-white/10 bg-slate-900/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:bg-slate-900/60;
     }
 
+    .glass-hover {
+        @apply transition-all duration-300 hover:border-cyan-400/30 hover:shadow-[0_8px_30px_rgba(6,182,212,0.12)];
+    }
+
     .text-glow {
         text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
     }
 
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .text-pretty {
+        text-wrap: pretty;
+    }
+
+    .focus-ring {
+        @apply outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition active:scale-[0.98] hover:bg-cyan-400 disabled:pointer-events-none disabled:opacity-60;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/10 active:scale-[0.98];
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white active:scale-[0.98];
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-2 text-sm font-semibold text-red-300 transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-200 disabled:opacity-60;
+    }
+
+    .input-base {
+        @apply w-full rounded-xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-white placeholder-slate-500 transition-colors outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 disabled:opacity-60;
+    }
+
+    .label-base {
+        @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+    }
+
+    .chip {
+        @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider;
+    }
+
+    .section-card {
+        @apply rounded-2xl border border-white/10 bg-slate-900/40 p-5 backdrop-blur-md sm:rounded-3xl sm:p-6;
+    }
+
     .animate-in {
         animation: fade-in 0.5s ease-out forwards;
+        animation-delay: calc(var(--index, 0) * 50ms);
+    }
+
+    .animate-slide-in {
+        animation: slide-in 0.3s ease-out forwards;
     }
 
     @keyframes fade-in {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    @keyframes slide-in {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .skeleton {
+        background: linear-gradient(
+            90deg,
+            rgba(148, 163, 184, 0.05) 25%,
+            rgba(148, 163, 184, 0.12) 50%,
+            rgba(148, 163, 184, 0.05) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.6s infinite linear;
+    }
+
+    .scrollbar-thin {
+        scrollbar-width: thin;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { scrollbar-width: none; }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -49,12 +160,58 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-slate-800 hover:bg-slate-700 transition-colors;
+    @apply rounded-full bg-slate-800 transition-colors;
 }
 
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-700;
+}
+
+/* Form controls baseline */
 input,
 textarea,
 select,
 button {
     font: inherit;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Native select dark options */
+select option {
+    background-color: rgb(15, 23, 42);
+    color: rgb(241, 245, 249);
+}
+
+/* Date inputs in dark mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Responsive container helpers */
+.container-page {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1400px;
 }

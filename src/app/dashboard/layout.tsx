@@ -24,11 +24,13 @@ export default async function DashboardLayout({
         .maybeSingle()
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white">
+        <div className="min-h-dvh bg-slate-950 text-white">
             <Sidebar profile={profile} />
 
-            <main className="px-4 pb-10 pt-20 md:ml-72 md:px-10 md:pt-10">
-                {children}
+            <main className="lg:ml-72">
+                <div className="container-page mx-auto px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pt-10">
+                    {children}
+                </div>
             </main>
         </div>
     )

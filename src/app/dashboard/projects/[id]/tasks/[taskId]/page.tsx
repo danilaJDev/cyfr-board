@@ -7,23 +7,23 @@ import DeleteTaskButton from '@/components/DeleteTaskButton'
 import { Icons } from '@/components/Icons'
 
 const taskStatusLabels: Record<string, { label: string; color: string }> = {
-    open:        { label: 'Открыта',   color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-    in_progress: { label: 'В работе',  color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
-    done:        { label: 'Выполнена', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
-    cancelled:   { label: 'Отменена',  color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' },
+    open:        { label: 'Открыта',   color: 'bg-blue-500/10 text-blue-300 border-blue-500/20' },
+    in_progress: { label: 'В работе',  color: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20' },
+    done:        { label: 'Выполнена', color: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' },
+    cancelled:   { label: 'Отменена',  color: 'bg-slate-500/10 text-slate-300 border-slate-500/20' },
 }
 
 interface Attachment {
-    id: string;
-    file_url: string;
-    file_name: string;
+    id: string
+    file_url: string
+    file_name: string
 }
 
 interface Assignee {
     user: {
-        id: string;
-        full_name: string;
-    };
+        id: string
+        full_name: string
+    }
 }
 
 export default async function TaskPage({
@@ -36,128 +36,210 @@ export default async function TaskPage({
 
     const { data: task } = await supabase
         .from('tasks')
-        .select(`
+        .select(
+            `
       *,
       project:projects(id, name),
       task_assignees(user:profiles(id, full_name)),
       attachments(*)
-    `)
+    `,
+        )
         .eq('id', taskId)
         .single()
 
     if (!task) notFound()
 
     const ts = taskStatusLabels[task.status] ?? taskStatusLabels.open
-    const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done'
+    const isOverdue =
+        task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done'
 
     return (
         <div className="animate-in">
             <Link
                 href={`/dashboard/projects/${projectId}`}
-                className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+                className="mb-5 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-cyan-400"
             >
-                <Icons.ChevronLeft className="h-4 w-4" />
-                {task.project?.name}
+                <Icons.ArrowLeft className="h-4 w-4" />
+                <span className="truncate">{task.project?.name}</span>
             </Link>
 
-            {/* Заголовок */}
-            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-3xl font-black leading-snug text-white lg:text-4xl">{task.title}</h1>
-                <div className="flex shrink-0 items-center gap-2">
+            <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-black leading-tight text-white sm:text-3xl lg:text-4xl text-balance">
+                        {task.title}
+                    </h1>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <span className={`chip ${ts.color}`}>{ts.label}</span>
+                        {isOverdue && (
+                            <span className="chip border-red-500/20 bg-red-500/10 text-red-300">
+                                <Icons.AlertTriangle className="h-3 w-3" />
+                                Просрочено
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
                     <Link
                         href={`/dashboard/projects/${projectId}/tasks/${taskId}/edit`}
-                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10 active:scale-95"
+                        className="btn-secondary py-2.5"
                     >
-                        Изменить
+                        <Icons.Edit className="h-4 w-4" />
+                        <span>Изменить</span>
                     </Link>
                     <TaskStatusSelect taskId={task.id} currentStatus={task.status} />
                 </div>
             </div>
 
-            {/* Мета */}
-            <div className="glass-card mb-8 grid grid-cols-2 gap-5 rounded-3xl p-6 sm:grid-cols-3">
-                <div className="flex flex-col">
-                    <p className="mb-1 text-xs text-slate-400">Статус</p>
-                    <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${ts.color}`}>
-                        {ts.label}
-                    </span>
-                </div>
-                <div className="flex flex-col">
-                    <p className="mb-1 text-xs text-slate-400">Дедлайн</p>
-                    <p className={`text-sm font-medium ${isOverdue ? 'text-red-400' : 'text-white'}`}>
-                        {task.deadline ? new Date(task.deadline).toLocaleDateString('ru-RU') : '—'}
-                    </p>
-                </div>
-                <div className="flex flex-col">
-                    <p className="mb-1 text-xs text-slate-400">Создана</p>
-                    <p className="text-sm font-medium text-white">
-                        {new Date(task.created_at).toLocaleDateString('ru-RU')}
-                    </p>
-                </div>
-            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+                <div className="space-y-6 lg:col-span-2">
+                    {task.description && (
+                        <Section title="Описание">
+                            <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-300">
+                                {task.description}
+                            </p>
+                        </Section>
+                    )}
 
-            {/* Ответственные */}
-            {task.task_assignees?.length > 0 && (
-                <div className="glass-card mb-8 rounded-3xl p-6">
-                    <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">Ответственные</p>
-                    <div className="flex flex-wrap gap-3">
-                        {task.task_assignees.map((a: Assignee) => (
-                            <div key={a.user.id} className="flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2">
-                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-xs font-bold text-white">
-                                    {a.user.full_name?.[0] ?? '?'}
-                                </div>
-                                <span className="text-sm font-medium text-white">{a.user.full_name}</span>
+                    {task.notes && (
+                        <Section title="Примечания">
+                            <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-300">
+                                {task.notes}
+                            </p>
+                        </Section>
+                    )}
+
+                    <Section
+                        title="Вложения"
+                        icon={<Icons.Paperclip className="h-5 w-5 text-slate-500" />}
+                        count={task.attachments?.length}
+                    >
+                        {task.attachments?.length > 0 && (
+                            <div className="mb-4 grid gap-2 sm:grid-cols-2">
+                                {task.attachments.map((file: Attachment) => (
+                                    <a
+                                        key={file.id}
+                                        href={file.file_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.03] px-3 py-2.5 transition hover:border-cyan-400/20 hover:bg-white/[0.06]"
+                                    >
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-slate-400 transition-colors group-hover:bg-cyan-500/10 group-hover:text-cyan-300">
+                                            <Icons.File className="h-4 w-4" />
+                                        </div>
+                                        <span className="truncate text-sm font-medium text-white">
+                                            {file.file_name}
+                                        </span>
+                                    </a>
+                                ))}
                             </div>
-                        ))}
+                        )}
+                        <AttachmentUpload taskId={task.id} />
+                    </Section>
+                </div>
+
+                <div className="space-y-5 lg:col-span-1">
+                    <div className="section-card">
+                        <h3 className="mb-4 text-base font-bold text-white">Детали</h3>
+                        <div className="space-y-3.5 text-sm">
+                            <InfoItem
+                                icon={<Icons.Calendar className="h-4 w-4 text-slate-400" />}
+                                label="Дедлайн"
+                                value={
+                                    task.deadline
+                                        ? new Date(task.deadline).toLocaleDateString('ru-RU')
+                                        : null
+                                }
+                                isOverdue={isOverdue}
+                            />
+                            <InfoItem
+                                icon={<Icons.Clock className="h-4 w-4 text-slate-400" />}
+                                label="Создана"
+                                value={new Date(task.created_at).toLocaleDateString('ru-RU')}
+                            />
+                        </div>
+                    </div>
+
+                    {task.task_assignees?.length > 0 && (
+                        <div className="section-card">
+                            <h3 className="mb-4 text-base font-bold text-white">Ответственные</h3>
+                            <div className="flex flex-col gap-3">
+                                {task.task_assignees.map((a: Assignee) => (
+                                    <div key={a.user.id} className="flex items-center gap-3">
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-sm font-bold uppercase text-white shadow-md">
+                                            {a.user.full_name?.[0] ?? '?'}
+                                        </div>
+                                        <span className="truncate text-sm font-medium text-white">
+                                            {a.user.full_name}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="border-t border-white/10 pt-5">
+                        <DeleteTaskButton taskId={task.id} projectId={projectId} />
                     </div>
                 </div>
-            )}
-
-            {/* Описание */}
-            {task.description && (
-                <div className="glass-card mb-8 rounded-3xl p-6">
-                    <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">Описание</p>
-                    <p className="text-sm leading-relaxed text-white whitespace-pre-wrap">{task.description}</p>
-                </div>
-            )}
-
-            {/* Примечания */}
-            {task.notes && (
-                <div className="glass-card mb-8 rounded-3xl p-6">
-                    <p className="mb-4 text-xs uppercase tracking-widest text-slate-400">Примечания</p>
-                    <p className="text-sm leading-relaxed text-white whitespace-pre-wrap">{task.notes}</p>
-                </div>
-            )}
-
-            <div className="mb-8 flex justify-end">
-                <DeleteTaskButton taskId={task.id} projectId={projectId} />
             </div>
+        </div>
+    )
+}
 
-            {/* Вложения */}
-            <div className="glass-card rounded-3xl p-6">
-                <div className="mb-5 flex items-center gap-3">
-                    <Icons.Paperclip className="h-5 w-5 text-slate-500" />
-                    <p className="text-xs uppercase tracking-widest text-slate-400">Вложения ({task.attachments?.length ?? 0})</p>
-                </div>
+function Section({
+    title,
+    icon,
+    count,
+    children,
+}: {
+    title: string
+    icon?: React.ReactNode
+    count?: number
+    children: React.ReactNode
+}) {
+    return (
+        <div className="section-card">
+            <div className="mb-4 flex items-center gap-3">
+                {icon}
+                <h2 className="text-base font-bold text-white sm:text-lg">
+                    {title}
+                    {count !== undefined && (
+                        <span className="ml-1 text-slate-500">({count})</span>
+                    )}
+                </h2>
+            </div>
+            {children}
+        </div>
+    )
+}
 
-                {task.attachments?.length > 0 && (
-                    <div className="mb-5 grid gap-3 sm:grid-cols-2">
-                        {task.attachments.map((file: Attachment) => (
-                            <a
-                                key={file.id}
-                                href={file.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 transition hover:bg-white/10"
-                            >
-                                <Icons.File className="h-5 w-5 shrink-0 text-slate-400" />
-                                <span className="text-sm font-medium text-white truncate">{file.file_name}</span>
-                            </a>
-                        ))}
-                    </div>
-                )}
-
-                <AttachmentUpload taskId={task.id} />
+function InfoItem({
+    icon,
+    label,
+    value,
+    isOverdue,
+}: {
+    icon: React.ReactNode
+    label: string
+    value: string | null | undefined
+    isOverdue?: boolean
+}) {
+    return (
+        <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5">
+                {icon}
+            </div>
+            <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                    {label}
+                </p>
+                <p
+                    className={`truncate font-medium ${
+                        isOverdue ? 'text-red-400' : 'text-white'
+                    }`}
+                >
+                    {value ?? '—'}
+                </p>
             </div>
         </div>
     )

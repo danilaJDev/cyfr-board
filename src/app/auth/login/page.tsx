@@ -89,86 +89,110 @@ export default async function LoginPage({
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center p-4">
-            <div className="glass rounded-3xl w-full max-w-md p-8 shadow-2xl shadow-cyan-900/20 animate-in">
-                <div className="mb-6 flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500 shadow-lg shadow-cyan-500/20">
-                        <Icons.Projects className="h-7 w-7 text-slate-950" />
+        <div className="relative flex min-h-dvh items-center justify-center px-4 py-10 sm:px-6">
+            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+                <div className="absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+                <div className="absolute -right-32 bottom-1/4 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl" />
+            </div>
+
+            <div className="glass relative w-full max-w-md rounded-3xl p-6 shadow-2xl shadow-cyan-900/20 sm:p-8 animate-in">
+                <div className="mb-6 flex items-center gap-3 sm:gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-lg shadow-cyan-500/30">
+                        <Icons.Building className="h-7 w-7 text-slate-950" />
                     </div>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white">CYFR Board</h1>
-                        <p className="text-[11px] uppercase tracking-widest text-cyan-500 font-semibold">Project command center</p>
+                    <div className="min-w-0">
+                        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                            CYFR Board
+                        </h1>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-400 sm:text-[11px]">
+                            Project command center
+                        </p>
                     </div>
                 </div>
 
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="text-sm text-slate-400">
                     Войдите в свою учетную запись, чтобы продолжить.
                 </p>
 
-                <form className="mt-8 space-y-5">
+                <form className="mt-7 space-y-5" autoComplete="on">
                     <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                        <label htmlFor="login-email" className="label-base">
                             Email
                         </label>
                         <input
+                            id="login-email"
                             type="email"
                             name="email"
-                            className="w-full rounded-xl border border-white/10 bg-slate-900/50 px-4 py-3 text-white outline-none transition focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                            autoComplete="email"
+                            inputMode="email"
+                            className="input-base"
                             placeholder="you@cyfr.ae"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                        <label htmlFor="login-password" className="label-base">
                             Пароль
                         </label>
                         <input
+                            id="login-password"
                             type="password"
                             name="password"
-                            className="w-full rounded-xl border border-white/10 bg-slate-900/50 px-4 py-3 text-white outline-none transition focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                            autoComplete="current-password"
+                            className="input-base"
                             placeholder="••••••••"
                             required
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 pt-2">
+                    <div className="grid grid-cols-2 gap-3 pt-1">
                         <button
                             type="submit"
                             formAction={signIn}
-                            className="rounded-xl bg-cyan-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-cyan-500 active:scale-95 shadow-lg shadow-cyan-500/20"
+                            className="btn-primary py-3 text-sm"
                         >
                             Войти
                         </button>
-
                         <button
                             type="submit"
                             formAction={signUp}
-                            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10 active:scale-95"
+                            className="btn-secondary py-3 text-sm"
                         >
                             Регистрация
                         </button>
                     </div>
 
-                    <div className="relative mt-6 flex items-center justify-center">
-                        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                            <div className="w-full border-t border-white/5" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-slate-900/60 px-2 text-slate-500">ИЛИ</span>
-                        </div>
+                    <div className="relative my-4 flex items-center">
+                        <div className="h-px flex-1 bg-white/10" />
+                        <span className="px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                            или
+                        </span>
+                        <div className="h-px flex-1 bg-white/10" />
                     </div>
 
                     <button
                         type="submit"
                         formAction={signInWithGoogle}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10 active:scale-95"
+                        className="btn-secondary w-full py-3 text-sm"
                     >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 4.499C14.167 4.499 15.833 5.249 17 6.499L20 3.499C18.167 1.499 15.333 0.499 12 0.499C7.083 0.499 3 2.749 1 6.499L4 8.499C5 6.083 8.333 4.499 12 4.499Z" fill="#EA4335"/>
-                            <path d="M4 8.499C3 10.916 3 13.083 4 15.499L1 17.499C1.167 18.083 1.5 18.75 2 19.499C2.667 20.333 3.5 21.083 4.499 21.499C5.499 22.083 6.667 22.499 8 22.499L8 19.499C6.667 19.499 5.5 18.999 4.499 17.499Z" fill="#FCD000"/>
-                            <path d="M12 22.499C15.333 22.499 18.167 21.499 20 19.499L17 17.499C15.833 18.749 14.167 19.499 12 19.499C8.333 19.499 5 17.916 4 15.499L1 17.499C3 21.249 7.083 23.499 12 23.499L12 22.499Z" fill="#4285F4"/>
-                            <path d="M23 12.499C23 11.499 22.833 10.499 22.5 9.499H12V14.499H18.833C18.667 15.499 18.167 16.333 17.5 16.999V20.499L20.5 22.499C22.167 20.583 23 16.666 23 12.499Z" fill="#34A853"/>
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
+                            <path
+                                fill="#EA4335"
+                                d="M12 4.499c2.167 0 3.833.75 5 2l3-3C18.167 1.499 15.333.499 12 .499 7.083.499 3 2.749 1 6.499l3 2c1-2.416 4.333-4 8-4z"
+                            />
+                            <path
+                                fill="#FBBC05"
+                                d="M4 8.499c-1 2.417-1 4.584 0 7l-3 2c.167.584.5 1.25 1 2 .667.834 1.5 1.584 2.499 2 1 .584 2.167 1 3.499 1l.002-3c-1.333 0-2.5-.5-3.5-2L4 8.5z"
+                            />
+                            <path
+                                fill="#4285F4"
+                                d="M12 22.499c3.333 0 6.167-1 8-3l-3-2c-1.167 1.25-2.833 2-5 2-3.667 0-7-1.583-8-4l-3 2c2 3.75 6.083 6 11 6z"
+                            />
+                            <path
+                                fill="#34A853"
+                                d="M23 12.499c0-1-.167-2-.5-3H12v5h6.833c-.166 1-.666 1.834-1.333 2.5v3.5l3 2c1.667-1.916 2.5-5.833 2.5-10z"
+                            />
                         </svg>
                         Войти через Google
                     </button>
@@ -176,15 +200,20 @@ export default async function LoginPage({
 
                 {(params.error || params.message) && (
                     <p
+                        role={params.error ? 'alert' : 'status'}
                         className={`mt-6 rounded-xl px-4 py-3 text-sm font-medium ${
                             params.error
-                                ? 'bg-red-500/10 text-red-300'
-                                : 'bg-cyan-500/10 text-cyan-200'
+                                ? 'bg-red-500/10 text-red-300 ring-1 ring-red-500/20'
+                                : 'bg-cyan-500/10 text-cyan-200 ring-1 ring-cyan-500/20'
                         }`}
                     >
                         {params.error || params.message}
                     </p>
                 )}
+
+                <p className="mt-6 text-center text-[11px] text-slate-500">
+                    © {new Date().getFullYear()} CYFR FITOUT L.L.C
+                </p>
             </div>
         </div>
     )
