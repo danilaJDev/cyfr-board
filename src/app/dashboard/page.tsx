@@ -59,11 +59,8 @@ export default async function DashboardPage() {
     <div className="space-y-8 sm:space-y-10 animate-in">
       <header>
         <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl text-balance">
-          Командный <span className="text-cyan-400">центр</span>
+          Дашборд
         </h1>
-        <p className="mt-3 max-w-2xl text-sm text-slate-400 sm:text-base text-pretty">
-          Общий статус проектов и задач CYFR FITOUT. Все показатели обновляются в реальном времени.
-        </p>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
