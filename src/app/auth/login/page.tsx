@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Icons } from '@/components/Icons'
+import Image from 'next/image' // Import Image component
 
 export default async function LoginPage({
                                             searchParams,
@@ -17,7 +17,7 @@ export default async function LoginPage({
         const password = String(formData.get('password') ?? '')
 
         if (!email || !password) {
-            redirect('/auth/login?error=Введите%20email%20и%20пароль')
+            redirect(`/auth/login?error=${encodeURIComponent('Введите email и пароль')}`)
         }
 
         const supabase = await createClient()
@@ -41,7 +41,7 @@ export default async function LoginPage({
         const password = String(formData.get('password') ?? '')
 
         if (!email || !password) {
-            redirect('/auth/login?error=Введите%20email%20и%20пароль')
+            redirect(`/auth/login?error=${encodeURIComponent('Введите email и пароль')}`)
         }
 
         const headerStore = await headers()
@@ -49,7 +49,7 @@ export default async function LoginPage({
 
         const supabase = await createClient()
 
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
@@ -61,8 +61,13 @@ export default async function LoginPage({
             redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
         }
 
+        // Check if the user is already confirmed
+        if (data.user && data.user.confirmed_at) {
+            redirect(`/auth/login?error=${encodeURIComponent('Пользователь с таким email уже зарегистрирован')}`)
+        }
+
         redirect(
-            '/auth/login?message=Регистрация%20создана.%20Проверьте%20почту%20для%20подтверждения.',
+            `/auth/login?message=${encodeURIComponent('Регистрация создана. Проверьте почту для подтверждения.')}`,
         )
     }
 
@@ -82,7 +87,7 @@ export default async function LoginPage({
         })
 
         if (error || !data.url) {
-            redirect('/auth/login?error=Не%20удалось%20запустить%20Google%20OAuth')
+            redirect(`/auth/login?error=${encodeURIComponent('Не удалось запустить Google OAuth')}`)
         }
 
         redirect(data.url)
@@ -98,14 +103,21 @@ export default async function LoginPage({
             <div className="glass relative w-full max-w-md rounded-3xl p-6 shadow-2xl shadow-cyan-900/20 sm:p-8 animate-in">
                 <div className="mb-6 flex items-center gap-3 sm:gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-lg shadow-cyan-500/30">
-                        <Icons.Building className="h-7 w-7 text-slate-950" />
+                        {/* Replaced Icons.Building with Image component */}
+                        <Image
+                            src="/cyfr_logo.svg" // Assuming cyfr_logo.svg is in public folder
+                            alt="CYFR Logo"
+                            width={28}
+                            height={28}
+                            className="h-7 w-7 text-slate-950" // Apply existing styling if needed, though Image handles size
+                        />
                     </div>
                     <div className="min-w-0">
                         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
                             CYFR Board
                         </h1>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-400 sm:text-[11px]">
-                            Project command center
+                            Command center
                         </p>
                     </div>
                 </div>
