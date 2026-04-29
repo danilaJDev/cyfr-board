@@ -45,7 +45,7 @@ export default async function TasksPage({
         <div className="animate-in">
             {/* Header */}
             <div className="mb-6 sm:mb-8">
-                <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">Все задачи</h1>
+                <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">Задачи</h1>
                 <p className="mt-1 text-sm t-muted">
                     Полный контроль и мониторинг по всем объектам
                 </p>

@@ -11,6 +11,7 @@ const navItems = [
     {href: '/dashboard', label: 'Дашборд', icon: Icons.Dashboard},
     {href: '/dashboard/projects', label: 'Проекты', icon: Icons.Projects},
     {href: '/dashboard/tasks', label: 'Задачи', icon: Icons.Tasks},
+    {href: '/dashboard/permits', label: 'Разрешения', icon: Icons.File},
     {href: '/dashboard/team', label: 'Команда', icon: Icons.Team},
 ]
 
