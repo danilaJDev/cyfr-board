@@ -91,14 +91,14 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                             return (
                                 <div
                                     key={task.id}
-                                    className="glass-card group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all hover:-translate-y-0.5 sm:gap-4 sm:px-5"
+                                    className="glass-card group flex items-start gap-2.5 rounded-2xl border px-3 py-3 transition-all hover:-translate-y-0.5 sm:items-center sm:gap-4 sm:px-5"
                                     style={{borderColor: 'var(--app-border)'}}
                                 >
                                     <button
                                         type="button"
                                         onClick={() => toggleDone(task)}
                                         disabled={updatingTaskId === task.id || isPending}
-                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors"
+                                        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors sm:mt-0 sm:h-10 sm:w-10 sm:rounded-xl"
                                         style={{
                                             borderColor: 'var(--app-border)',
                                             background: task.status === 'done' ? 'var(--status-success-bg)' : 'var(--app-surface-2)',
@@ -113,15 +113,19 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                                         {task.assignees.length > 0 && (
                                             <p className="mt-1 truncate text-sm t-muted">{task.assignees.join(', ')}</p>
                                         )}
+                                        <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
+                                            <span className={`chip ${statusConfig.chipClass}`}>{statusConfig.label}</span>
+                                            {task.deadline ? (
+                                                <span className={`chip ${deadlineChipColor(task.deadline)}`}>
+                          {formatDate(task.deadline)}
+                        </span>
+                                            ) : (
+                                                <span />
+                                            )}
+                                        </div>
                                     </Link>
 
-                                    <div className="flex items-center gap-2">
-                                        {task.deadline && (
-                                            <span className={`chip ${deadlineChipColor(task.deadline)}`}>
-                        {formatDate(task.deadline)}
-                      </span>
-                                        )}
-                                        <span className={`chip ${statusConfig.chipClass}`}>{statusConfig.label}</span>
+                                    <div className="flex h-full items-center">
                                         <Icons.ChevronRight className="hidden h-5 w-5 t-subtle sm:block"/>
                                     </div>
                                 </div>
