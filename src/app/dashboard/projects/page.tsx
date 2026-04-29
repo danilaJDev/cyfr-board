@@ -45,7 +45,7 @@ export default async function ProjectsPage() {
                 <div>
                     <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">Проекты</h1>
                     <p className="mt-1 text-sm t-muted">
-                        {projects?.length ?? 0} объектов под управлением
+                        Всего проектов: {projects?.length ?? 0}
                     </p>
                 </div>
                 {isAdmin && (
@@ -81,17 +81,25 @@ export default async function ProjectsPage() {
                     {projects.map((project, i) => {
                         const status = statusLabels[project.status] ?? statusLabels.active
                         const taskCount = project.tasks?.[0]?.count ?? 0
+                        const assignees = project.project_assignees
+                            ?.map((a: { user?: { full_name?: string } | null }) => a.user?.full_name)
+                            .filter(Boolean) ?? []
+                        const previewAssignees = assignees.slice(0, 2)
+                        const moreAssigneesCount = Math.max(assignees.length - previewAssignees.length, 0)
 
                         return (
                             <Link
                                 key={project.id}
                                 href={`/dashboard/projects/${project.id}`}
-                                className="group glass-card animate-in relative block overflow-hidden rounded-2xl p-5 transition-all hover:-translate-y-1 active:scale-[0.99] sm:p-6"
-                                style={{'--index': i} as React.CSSProperties}
+                                className="group glass-card animate-in relative block overflow-hidden rounded-2xl border p-5 transition-all hover:-translate-y-1 hover:shadow-2xl active:scale-[0.99] sm:p-6"
+                                style={{
+                                    '--index': i,
+                                    borderColor: 'color-mix(in oklab, var(--app-border) 75%, var(--app-accent) 25%)',
+                                } as React.CSSProperties}
                             >
                                 {/* Decorative glow */}
                                 <div
-                                    className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity"
+                                    className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full blur-3xl opacity-40 transition-opacity group-hover:opacity-80"
                                     style={{background: 'var(--app-accent-subtle)'}}
                                 />
 
@@ -101,11 +109,11 @@ export default async function ProjectsPage() {
                                     </span>
                                 </div>
 
-                                <h3 className="mb-5 line-clamp-2 text-lg font-bold leading-tight t-fg transition-colors group-hover:t-accent sm:text-xl">
+                                <h3 className="mb-5 line-clamp-2 text-lg font-bold leading-tight t-fg transition-colors group-hover:t-accent sm:text-[1.35rem]">
                                     {project.name}
                                 </h3>
 
-                                <div className="space-y-2.5 border-t pt-4 text-sm"
+                                <div className="space-y-3 border-t pt-4 text-sm"
                                      style={{borderColor: 'var(--app-border)'}}>
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="flex items-center gap-2 t-muted">
@@ -113,20 +121,41 @@ export default async function ProjectsPage() {
                                             Тип
                                         </span>
 
-                                        <span className="truncate font-medium t-fg">
+                                        <span className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide t-fg"
+                                              style={{background: 'var(--app-surface-2)'}}>
                                             {typeLabels[project.type] ?? project.type ?? '—'}
                                         </span>
                                     </div>
 
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="flex items-center gap-2 t-muted">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <span className="mt-1 flex items-center gap-2 t-muted">
                                             <Icons.User className="h-4 w-4"/>
                                             Ответственные
                                         </span>
 
-                                        <span className="max-w-[180px] truncate font-medium t-fg">
-                                            {project.project_assignees?.length ? project.project_assignees.map((a: { user?: { full_name?: string } | null }) => a.user?.full_name).filter(Boolean).join(', ') : project.manager?.full_name ?? '—'}
-                                        </span>
+                                        {previewAssignees.length ? (
+                                            <div className="flex max-w-[70%] flex-wrap justify-end gap-1.5">
+                                                {previewAssignees.map((name: string) => (
+                                                    <span
+                                                        key={name}
+                                                        className="rounded-full px-2.5 py-1 text-xs font-medium t-fg"
+                                                        style={{background: 'var(--app-surface-2)'}}
+                                                    >
+                                                        {name}
+                                                    </span>
+                                                ))}
+                                                {moreAssigneesCount > 0 && (
+                                                    <span
+                                                        className="rounded-full px-2.5 py-1 text-xs font-semibold t-accent"
+                                                        style={{background: 'var(--app-accent-subtle)'}}
+                                                    >
+                                                        +{moreAssigneesCount}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="font-medium t-fg">{project.manager?.full_name ?? '—'}</span>
+                                        )}
                                     </div>
 
                                     <div className="flex items-center justify-between gap-3">
@@ -135,7 +164,8 @@ export default async function ProjectsPage() {
                                             Задачи
                                         </span>
 
-                                        <span className="font-bold t-accent">
+                                        <span className="rounded-full px-2.5 py-1 text-sm font-bold t-accent"
+                                              style={{background: 'var(--app-accent-subtle)'}}>
                                             {taskCount}
                                         </span>
                                     </div>
