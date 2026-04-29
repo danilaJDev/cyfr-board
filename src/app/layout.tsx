@@ -1,17 +1,16 @@
-import type { Metadata } from 'next'
-import { Analytics } from '@vercel/analytics/next'
-import { SpeedInsights } from '@vercel/speed-insights/next'
+import type {Metadata} from 'next'
+import {Analytics} from '@vercel/analytics/next'
+import {SpeedInsights} from '@vercel/speed-insights/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'CYFR Board',
-  description: 'Управление проектами, разрешениями и задачами CYFR FITOUT L.L.C',
-  icons: {
-    icon: '/cyfr-logo-gold.svg',
-  },
+    title: 'CYFR Board',
+    description: 'Управление проектами, разрешениями и задачами CYFR FITOUT L.L.C',
+    icons: {
+        icon: '/cyfr-logo-gold.svg',
+    },
 }
 
-// Inline script injected BEFORE React hydration to prevent flash of wrong theme.
 const themeScript = `
 (function(){
   try{
@@ -23,21 +22,21 @@ const themeScript = `
 `
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
+                                       children,
+                                   }: Readonly<{
+    children: React.ReactNode
 }>) {
-  return (
-    <html lang="ru" suppressHydrationWarning>
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-      <body suppressHydrationWarning>
+    return (
+        <html lang="ru" suppressHydrationWarning>
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <head>
+            <script dangerouslySetInnerHTML={{__html: themeScript}}/>
+        </head>
+        <body suppressHydrationWarning>
         {children}
-        <Analytics />
-        <SpeedInsights />
-      </body>
-    </html>
-  )
+        <Analytics/>
+        <SpeedInsights/>
+        </body>
+        </html>
+    )
 }

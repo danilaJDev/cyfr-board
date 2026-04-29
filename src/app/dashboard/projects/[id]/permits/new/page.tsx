@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useParams, useRouter } from 'next/navigation'
+import {useState} from 'react'
+import {createClient} from '@/lib/supabase/client'
+import {useParams, useRouter} from 'next/navigation'
 import Link from 'next/link'
-import { Icons } from '@/components/Icons'
+import {Icons} from '@/components/Icons'
 
 export default function NewPermitPage() {
     const params = useParams<{ id: string }>()
@@ -21,7 +21,7 @@ export default function NewPermitPage() {
     })
 
     const setField = (field: string, value: string) =>
-        setForm((prev) => ({ ...prev, [field]: value }))
+        setForm((prev) => ({...prev, [field]: value}))
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
@@ -30,10 +30,10 @@ export default function NewPermitPage() {
 
         const supabase = createClient()
         const {
-            data: { user },
+            data: {user},
         } = await supabase.auth.getUser()
 
-        const { error: insertError } = await supabase.from('permits').insert({
+        const {error: insertError} = await supabase.from('permits').insert({
             project_id: params.id,
             permit_type: form.permit_type,
             status: form.status,
@@ -60,7 +60,7 @@ export default function NewPermitPage() {
                     href={`/dashboard/projects/${params.id}`}
                     className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
-                    <Icons.ArrowLeft className="h-4 w-4" />
+                    <Icons.ArrowLeft className="h-4 w-4"/>
                     Назад к проекту
                 </Link>
                 <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
@@ -165,12 +165,12 @@ export default function NewPermitPage() {
                         <button type="submit" disabled={loading} className="btn-primary justify-center">
                             {loading ? (
                                 <>
-                                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                                    <Icons.Loader className="h-4 w-4 animate-spin"/>
                                     Сохраняем...
                                 </>
                             ) : (
                                 <>
-                                    <Icons.Plus className="h-4 w-4" />
+                                    <Icons.Plus className="h-4 w-4"/>
                                     Добавить разрешение
                                 </>
                             )}
