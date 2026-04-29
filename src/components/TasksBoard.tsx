@@ -113,7 +113,7 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                                         {task.assignees.length > 0 && (
                                             <p className="mt-1 truncate text-sm t-muted">{task.assignees.join(', ')}</p>
                                         )}
-                                        <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
+                                        <div className="mt-2 flex items-center justify-between gap-2 sm:hidden">
                                             <span className={`chip ${statusConfig.chipClass}`}>{statusConfig.label}</span>
                                             {task.deadline ? (
                                                 <span className={`chip ${deadlineChipColor(task.deadline)}`}>
@@ -125,8 +125,14 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                                         </div>
                                     </Link>
 
-                                    <div className="flex h-full items-center">
-                                        <Icons.ChevronRight className="hidden h-5 w-5 t-subtle sm:block"/>
+                                    <div className="hidden h-full items-center gap-2 sm:flex">
+                                        {task.deadline && (
+                                            <span className={`chip ${deadlineChipColor(task.deadline)}`}>
+                        {formatDate(task.deadline)}
+                      </span>
+                                        )}
+                                        <span className={`chip ${statusConfig.chipClass}`}>{statusConfig.label}</span>
+                                        <Icons.ChevronRight className="h-5 w-5 t-subtle"/>
                                     </div>
                                 </div>
                             )

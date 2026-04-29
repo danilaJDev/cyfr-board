@@ -2,6 +2,7 @@ import {createClient} from '@/lib/supabase/server'
 import Link from 'next/link'
 import {Icons} from '@/components/Icons'
 import TasksBoard from '@/components/TasksBoard'
+import MobileTaskFilter from '@/components/MobileTaskFilter'
 
 type AssigneeItem = { user?: { full_name?: string } | null }
 
@@ -66,8 +67,9 @@ export default async function TasksPage({
             </div>
 
             {/* Filter chips */}
-            <div className="mb-6 -mx-4 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0">
-                <nav className="flex min-w-max gap-2">
+            <div className="mb-6">
+                <MobileTaskFilter filters={filters} currentStatus={currentStatus}/>
+                <nav className="hidden min-w-max gap-2 sm:flex">
                     {filters.map((f) => {
                         const active = f.value === currentStatus
                         const href =
