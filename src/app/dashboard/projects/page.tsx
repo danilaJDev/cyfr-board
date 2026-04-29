@@ -45,7 +45,7 @@ export default async function ProjectsPage() {
                 <div>
                     <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">Проекты</h1>
                     <p className="mt-1 text-sm t-muted">
-                        {projects?.length ?? 0} объектов под управлением
+                        Всего проектов: {projects?.length ?? 0}
                     </p>
                 </div>
                 {isAdmin && (

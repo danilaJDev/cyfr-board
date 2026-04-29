@@ -57,7 +57,7 @@ export default async function DashboardPage() {
                 <h1 className="text-3xl font-black tracking-tight t-fg sm:text-4xl text-balance">
                     Дашборд
                 </h1>
-                <p className="mt-1 text-sm t-muted">Обзор проектов и задач</p>
+                <p className="mt-1 text-sm t-muted">Обзор показателей</p>
             </header>
 
             {/* Stat cards */}
