@@ -132,7 +132,6 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                       </span>
                                         )}
                                         <span className={`chip ${statusConfig.chipClass}`}>{statusConfig.label}</span>
-                                        <Icons.ChevronRight className="h-5 w-5 t-subtle"/>
                                     </div>
                                 </div>
                             )
