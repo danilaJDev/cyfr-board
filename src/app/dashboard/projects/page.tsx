@@ -24,6 +24,7 @@ export default async function ProjectsPage() {
         .select(`
       *,
       manager:profiles!projects_manager_id_fkey(full_name),
+      project_assignees(user:profiles(full_name)),
       creator:profiles!projects_created_by_fkey(full_name),
       tasks(count)
     `)
@@ -120,11 +121,11 @@ export default async function ProjectsPage() {
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="flex items-center gap-2 t-muted">
                                             <Icons.User className="h-4 w-4"/>
-                                            Ответственный
+                                            Ответственные
                                         </span>
 
                                         <span className="max-w-[180px] truncate font-medium t-fg">
-                                            {project.manager?.full_name ?? '—'}
+                                            {project.project_assignees?.length ? project.project_assignees.map((a: { user?: { full_name?: string } | null }) => a.user?.full_name).filter(Boolean).join(', ') : project.manager?.full_name ?? '—'}
                                         </span>
                                     </div>
 

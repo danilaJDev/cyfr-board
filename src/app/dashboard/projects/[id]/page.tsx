@@ -21,6 +21,7 @@ export default async function ProjectPage({params}: { params: Promise<{ id: stri
         .select(`
       *,
       manager:profiles!projects_manager_id_fkey(full_name),
+      project_assignees(user:profiles(full_name)),
       creator:profiles!projects_created_by_fkey(full_name),
       tasks(id, title, status, deadline, task_assignees(user:profiles(full_name))),
       permits(*)
@@ -77,8 +78,8 @@ export default async function ProjectPage({params}: { params: Promise<{ id: stri
             <div className="section-card mb-6 grid grid-cols-1 gap-x-6 gap-y-4 sm:mb-8 sm:grid-cols-2 lg:grid-cols-3">
                 <InfoItem
                     icon={<Icons.User className="h-4 w-4 t-muted"/>}
-                    label="Руководитель"
-                    value={project.manager?.full_name}
+                    label="Ответственные"
+                    value={project.project_assignees?.length ? project.project_assignees.map((a: { user?: { full_name?: string } | null }) => a.user?.full_name).filter(Boolean).join(', ') : project.manager?.full_name}
                 />
                 <InfoItem
                     icon={<Icons.Calendar className="h-4 w-4 t-muted"/>}
