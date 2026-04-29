@@ -7,7 +7,6 @@ import DeleteTaskButton from '@/components/DeleteTaskButton'
 import {Icons} from '@/components/Icons'
 
 const taskStatusLabels: Record<string, { label: string; chipClass: string }> = {
-    open: {label: 'Открыта', chipClass: 'status-info'},
     in_progress: {label: 'В работе', chipClass: 'status-accent'},
     done: {label: 'Выполнена', chipClass: 'status-success'},
     cancelled: {label: 'Отменена', chipClass: 'status-neutral'},
@@ -44,7 +43,7 @@ export default async function TaskPage({
 
     if (!task) notFound()
 
-    const ts = taskStatusLabels[task.status] ?? taskStatusLabels.open
+    const ts = taskStatusLabels[task.status] ?? taskStatusLabels.in_progress
     const isOverdue =
         task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done'
 

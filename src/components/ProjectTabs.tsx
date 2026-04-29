@@ -5,7 +5,6 @@ import Link from 'next/link'
 import {Icons} from './Icons'
 
 const taskStatusLabels: Record<string, { label: string; chipClass: string }> = {
-    open: {label: 'Открыта', chipClass: 'status-info'},
     in_progress: {label: 'В работе', chipClass: 'status-accent'},
     done: {label: 'Выполнена', chipClass: 'status-success'},
     cancelled: {label: 'Отменена', chipClass: 'status-neutral'},
@@ -125,7 +124,7 @@ export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
                     ) : (
                         <div className="grid gap-3">
                             {project.tasks.map((task) => {
-                                const ts = taskStatusLabels[task.status] ?? taskStatusLabels.open
+                                const ts = taskStatusLabels[task.status] ?? taskStatusLabels.in_progress
                                 const assignees = task.task_assignees
                                     ?.map((a) => a.user?.full_name)
                                     .filter(Boolean) as string[] | undefined
