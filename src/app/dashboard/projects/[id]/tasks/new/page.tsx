@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter, useParams } from 'next/navigation'
+import {useEffect, useState} from 'react'
+import {createClient} from '@/lib/supabase/client'
+import {useParams, useRouter} from 'next/navigation'
 import Link from 'next/link'
-import { Icons } from '@/components/Icons'
+import {Icons} from '@/components/Icons'
 
 type TeamMember = {
     id: string
@@ -35,14 +35,14 @@ export default function NewTaskPage() {
         supabase
             .from('profiles')
             .select('id, full_name, role')
-            .order('full_name', { ascending: true })
-            .then(({ data }) => {
+            .order('full_name', {ascending: true})
+            .then(({data}) => {
                 if (data) setTeam(data as TeamMember[])
             })
     }, [supabase])
 
     const set = (field: string, value: string) =>
-        setForm((prev) => ({ ...prev, [field]: value }))
+        setForm((prev) => ({...prev, [field]: value}))
 
     const toggleAssignee = (id: string) =>
         setSelectedAssignees((prev) =>
@@ -55,10 +55,10 @@ export default function NewTaskPage() {
         setError('')
 
         const {
-            data: { user },
+            data: {user},
         } = await supabase.auth.getUser()
 
-        const { data: task, error: taskError } = await supabase
+        const {data: task, error: taskError} = await supabase
             .from('tasks')
             .insert({
                 project_id: projectId,
@@ -82,7 +82,7 @@ export default function NewTaskPage() {
             await supabase
                 .from('task_assignees')
                 .insert(
-                    selectedAssignees.map((userId) => ({ task_id: task.id, user_id: userId })),
+                    selectedAssignees.map((userId) => ({task_id: task.id, user_id: userId})),
                 )
         }
 
@@ -96,7 +96,7 @@ export default function NewTaskPage() {
                     href={`/dashboard/projects/${projectId}`}
                     className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
-                    <Icons.ArrowLeft className="h-4 w-4" />
+                    <Icons.ArrowLeft className="h-4 w-4"/>
                     Назад к проекту
                 </Link>
                 <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
@@ -184,7 +184,8 @@ export default function NewTaskPage() {
                     <div>
                         <label className="label-base">Ответственные</label>
                         {team.length === 0 ? (
-                            <p className="rounded-xl border border-dashed px-4 py-3 text-xs t-subtle" style={{ borderColor: 'var(--app-border)' }}>
+                            <p className="rounded-xl border border-dashed px-4 py-3 text-xs t-subtle"
+                               style={{borderColor: 'var(--app-border)'}}>
                                 Нет доступных сотрудников
                             </p>
                         ) : (
@@ -206,7 +207,9 @@ export default function NewTaskPage() {
                                                 checked={checked}
                                                 onChange={() => toggleAssignee(member.id)}
                                             />
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase text-white" style={{ background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)' }}>
+                                            <div
+                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase text-white"
+                                                style={{background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'}}>
                                                 {member.full_name?.[0] ?? '?'}
                                             </div>
                                             <div className="min-w-0 flex-1">
@@ -226,7 +229,7 @@ export default function NewTaskPage() {
                                                 aria-hidden
                                             >
                                                 {checked && (
-                                                    <Icons.Check className="h-3 w-3" style={{ color: "var(--app-bg)" }} />
+                                                    <Icons.Check className="h-3 w-3" style={{color: "var(--app-bg)"}}/>
                                                 )}
                                             </div>
                                         </label>
@@ -255,12 +258,12 @@ export default function NewTaskPage() {
                         <button type="submit" disabled={loading} className="btn-primary justify-center">
                             {loading ? (
                                 <>
-                                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                                    <Icons.Loader className="h-4 w-4 animate-spin"/>
                                     Создаём...
                                 </>
                             ) : (
                                 <>
-                                    <Icons.Plus className="h-4 w-4" />
+                                    <Icons.Plus className="h-4 w-4"/>
                                     Создать задачу
                                 </>
                             )}

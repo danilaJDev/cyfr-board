@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useParams, useRouter } from 'next/navigation'
+import {useEffect, useState} from 'react'
+import {createClient} from '@/lib/supabase/client'
+import {useParams, useRouter} from 'next/navigation'
 import Link from 'next/link'
-import { Icons } from '@/components/Icons'
+import {Icons} from '@/components/Icons'
 
 type TeamMember = {
     id: string
@@ -35,11 +35,11 @@ export default function EditTaskPage() {
 
     useEffect(() => {
         const loadPage = async () => {
-            const [{ data: members }, { data: task, error: taskError }] = await Promise.all([
+            const [{data: members}, {data: task, error: taskError}] = await Promise.all([
                 supabase
                     .from('profiles')
                     .select('id, full_name, role')
-                    .order('full_name', { ascending: true }),
+                    .order('full_name', {ascending: true}),
                 supabase
                     .from('tasks')
                     .select('title, description, notes, status, deadline, task_assignees(user_id)')
@@ -72,7 +72,7 @@ export default function EditTaskPage() {
     }, [supabase, taskId])
 
     const set = (field: string, value: string) =>
-        setForm((prev) => ({ ...prev, [field]: value }))
+        setForm((prev) => ({...prev, [field]: value}))
 
     const toggleAssignee = (id: string) =>
         setSelectedAssignees((prev) =>
@@ -84,7 +84,7 @@ export default function EditTaskPage() {
         setLoading(true)
         setError('')
 
-        const { error: updateError } = await supabase
+        const {error: updateError} = await supabase
             .from('tasks')
             .update({
                 title: form.title.trim(),
@@ -101,7 +101,7 @@ export default function EditTaskPage() {
             return
         }
 
-        const { error: cleanupError } = await supabase
+        const {error: cleanupError} = await supabase
             .from('task_assignees')
             .delete()
             .eq('task_id', taskId)
@@ -112,10 +112,10 @@ export default function EditTaskPage() {
         }
 
         if (selectedAssignees.length > 0) {
-            const { error: insertError } = await supabase
+            const {error: insertError} = await supabase
                 .from('task_assignees')
                 .insert(
-                    selectedAssignees.map((userId) => ({ task_id: taskId, user_id: userId })),
+                    selectedAssignees.map((userId) => ({task_id: taskId, user_id: userId})),
                 )
 
             if (insertError) {
@@ -132,7 +132,7 @@ export default function EditTaskPage() {
     if (fetching) {
         return (
             <div className="flex min-h-[40vh] items-center justify-center">
-                <Icons.Loader className="h-8 w-8 animate-spin t-accent" />
+                <Icons.Loader className="h-8 w-8 animate-spin t-accent"/>
             </div>
         )
     }
@@ -144,7 +144,7 @@ export default function EditTaskPage() {
                     href={`/dashboard/projects/${projectId}/tasks/${taskId}`}
                     className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
-                    <Icons.ArrowLeft className="h-4 w-4" />
+                    <Icons.ArrowLeft className="h-4 w-4"/>
                     Назад к задаче
                 </Link>
                 <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
@@ -228,7 +228,8 @@ export default function EditTaskPage() {
                     <div>
                         <label className="label-base">Ответственные</label>
                         {team.length === 0 ? (
-                            <p className="rounded-xl border border-dashed px-4 py-3 text-xs t-subtle" style={{ borderColor: 'var(--app-border)' }}>
+                            <p className="rounded-xl border border-dashed px-4 py-3 text-xs t-subtle"
+                               style={{borderColor: 'var(--app-border)'}}>
                                 Нет доступных сотрудников
                             </p>
                         ) : (
@@ -250,7 +251,9 @@ export default function EditTaskPage() {
                                                 checked={checked}
                                                 onChange={() => toggleAssignee(member.id)}
                                             />
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase text-white" style={{ background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)' }}>
+                                            <div
+                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase text-white"
+                                                style={{background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'}}>
                                                 {member.full_name?.[0] ?? '?'}
                                             </div>
                                             <div className="min-w-0 flex-1">
@@ -270,7 +273,7 @@ export default function EditTaskPage() {
                                                 aria-hidden
                                             >
                                                 {checked && (
-                                                    <Icons.Check className="h-3 w-3" style={{ color: "var(--app-bg)" }} />
+                                                    <Icons.Check className="h-3 w-3" style={{color: "var(--app-bg)"}}/>
                                                 )}
                                             </div>
                                         </label>
@@ -299,12 +302,12 @@ export default function EditTaskPage() {
                         <button type="submit" disabled={loading} className="btn-primary justify-center">
                             {loading ? (
                                 <>
-                                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                                    <Icons.Loader className="h-4 w-4 animate-spin"/>
                                     Сохраняем...
                                 </>
                             ) : (
                                 <>
-                                    <Icons.Check className="h-4 w-4" />
+                                    <Icons.Check className="h-4 w-4"/>
                                     Сохранить изменения
                                 </>
                             )}

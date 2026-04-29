@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import {useState} from 'react'
+import {createClient} from '@/lib/supabase/client'
+import {useRouter} from 'next/navigation'
 import Link from 'next/link'
-import { Icons } from '@/components/Icons'
+import {Icons} from '@/components/Icons'
 
 export default function NewProjectPage() {
     const router = useRouter()
@@ -21,7 +21,7 @@ export default function NewProjectPage() {
     })
 
     const set = (field: string, value: string) => {
-        setForm((prev) => ({ ...prev, [field]: value }))
+        setForm((prev) => ({...prev, [field]: value}))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +31,7 @@ export default function NewProjectPage() {
         setError('')
 
         const {
-            data: { user },
+            data: {user},
             error: userError,
         } = await supabase.auth.getUser()
 
@@ -42,7 +42,7 @@ export default function NewProjectPage() {
             return
         }
 
-        const { error: insertError } = await supabase.from('projects').insert({
+        const {error: insertError} = await supabase.from('projects').insert({
             name: form.name.trim(),
             type: form.type,
             status: form.status,
@@ -68,7 +68,7 @@ export default function NewProjectPage() {
                     href="/dashboard/projects"
                     className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
-                    <Icons.ArrowLeft className="h-4 w-4" />
+                    <Icons.ArrowLeft className="h-4 w-4"/>
                     Назад к проектам
                 </Link>
                 <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
@@ -163,12 +163,12 @@ export default function NewProjectPage() {
                         <button type="submit" disabled={loading} className="btn-primary justify-center">
                             {loading ? (
                                 <>
-                                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                                    <Icons.Loader className="h-4 w-4 animate-spin"/>
                                     Создаём...
                                 </>
                             ) : (
                                 <>
-                                    <Icons.Plus className="h-4 w-4" />
+                                    <Icons.Plus className="h-4 w-4"/>
                                     Создать проект
                                 </>
                             )}

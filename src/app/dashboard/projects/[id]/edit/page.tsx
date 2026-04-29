@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useParams, useRouter } from 'next/navigation'
+import {useEffect, useState} from 'react'
+import {createClient} from '@/lib/supabase/client'
+import {useParams, useRouter} from 'next/navigation'
 import Link from 'next/link'
-import { Icons } from '@/components/Icons'
+import {Icons} from '@/components/Icons'
 
 export default function EditProjectPage() {
     const router = useRouter()
@@ -28,7 +28,7 @@ export default function EditProjectPage() {
             .select('name, type, status, contract_signed_at')
             .eq('id', projectId)
             .single()
-            .then(({ data, error: fetchError }) => {
+            .then(({data, error: fetchError}) => {
                 if (fetchError || !data) {
                     setError(fetchError?.message ?? 'Не удалось загрузить проект')
                     setFetching(false)
@@ -48,7 +48,7 @@ export default function EditProjectPage() {
     }, [projectId, supabase])
 
     const set = (field: string, value: string) => {
-        setForm((prev) => ({ ...prev, [field]: value }))
+        setForm((prev) => ({...prev, [field]: value}))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -56,7 +56,7 @@ export default function EditProjectPage() {
         setLoading(true)
         setError('')
 
-        const { error: updateError } = await supabase
+        const {error: updateError} = await supabase
             .from('projects')
             .update({
                 name: form.name.trim(),
@@ -79,7 +79,7 @@ export default function EditProjectPage() {
     if (fetching) {
         return (
             <div className="flex min-h-[40vh] items-center justify-center">
-                <Icons.Loader className="h-8 w-8 animate-spin t-accent" />
+                <Icons.Loader className="h-8 w-8 animate-spin t-accent"/>
             </div>
         )
     }
@@ -91,7 +91,7 @@ export default function EditProjectPage() {
                     href={`/dashboard/projects/${projectId}`}
                     className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
-                    <Icons.ArrowLeft className="h-4 w-4" />
+                    <Icons.ArrowLeft className="h-4 w-4"/>
                     Назад к проекту
                 </Link>
                 <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
@@ -182,12 +182,12 @@ export default function EditProjectPage() {
                         <button type="submit" disabled={loading} className="btn-primary justify-center">
                             {loading ? (
                                 <>
-                                    <Icons.Loader className="h-4 w-4 animate-spin" />
+                                    <Icons.Loader className="h-4 w-4 animate-spin"/>
                                     Сохраняем...
                                 </>
                             ) : (
                                 <>
-                                    <Icons.Check className="h-4 w-4" />
+                                    <Icons.Check className="h-4 w-4"/>
                                     Сохранить изменения
                                 </>
                             )}

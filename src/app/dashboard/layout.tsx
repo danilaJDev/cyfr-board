@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import {createClient} from '@/lib/supabase/server'
+import {redirect} from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 
 export default async function DashboardLayout({
@@ -10,14 +10,14 @@ export default async function DashboardLayout({
     const supabase = await createClient()
 
     const {
-        data: { user },
+        data: {user},
     } = await supabase.auth.getUser()
 
     if (!user) {
         redirect('/auth/login')
     }
 
-    const { data: profile } = await supabase
+    const {data: profile} = await supabase
         .from('profiles')
         .select('full_name, role')
         .eq('id', user.id)
@@ -25,7 +25,7 @@ export default async function DashboardLayout({
 
     return (
         <div className="min-h-dvh bg-app">
-            <Sidebar profile={profile} />
+            <Sidebar profile={profile}/>
 
             <main className="lg:ml-72">
                 <div className="container-page mx-auto px-4 pb-12 pt-20 sm:px-6 lg:px-10 lg:pt-10">
