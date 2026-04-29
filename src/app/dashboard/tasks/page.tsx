@@ -21,6 +21,13 @@ export default async function TasksPage({
     const {status} = await searchParams
     const currentStatus = status ?? 'all'
     const supabase = await createClient()
+    const {data: {user}} = await supabase.auth.getUser()
+
+    const {data: profile} = user
+        ? await supabase.from('profiles').select('role').eq('id', user.id).single()
+        : {data: null}
+
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'manager'
 
     let query = supabase
         .from('tasks')
@@ -59,11 +66,19 @@ export default async function TasksPage({
     return (
         <div className="animate-in">
             {/* Header */}
-            <div className="mb-6 sm:mb-8">
-                <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">Задачи</h1>
-                <p className="mt-1 text-sm t-muted">
-                    Полный контроль и мониторинг по всем объектам
-                </p>
+            <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
+                <div>
+                    <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">Задачи</h1>
+                    <p className="mt-1 text-sm t-muted">
+                        Полный контроль и мониторинг по всем объектам
+                    </p>
+                </div>
+                {isAdmin && (
+                    <Link href="/dashboard/projects" className="btn-primary self-stretch justify-center py-3 sm:self-auto">
+                        <Icons.Plus className="h-4 w-4"/>
+                        Новая задача
+                    </Link>
+                )}
             </div>
 
             {/* Filter chips */}
