@@ -27,7 +27,7 @@ export default function NewTaskPage() {
         title: '',
         description: '',
         notes: '',
-        status: 'open',
+        status: 'in_progress',
         deadline: '',
     })
 
@@ -150,23 +150,7 @@ export default function NewTaskPage() {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <label htmlFor="status" className="label-base">
-                                Статус
-                            </label>
-                            <select
-                                id="status"
-                                value={form.status}
-                                onChange={(e) => set('status', e.target.value)}
-                                className="input-base"
-                            >
-                                <option value="open">Открыта</option>
-                                <option value="in_progress">В работе</option>
-                                <option value="done">Выполнена</option>
-                                <option value="cancelled">Отменена</option>
-                            </select>
-                        </div>
+                    <div className="grid grid-cols-1 gap-5">
                         <div>
                             <label htmlFor="deadline" className="label-base">
                                 Дедлайн
