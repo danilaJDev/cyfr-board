@@ -6,7 +6,6 @@ import {useRouter} from 'next/navigation'
 import {Icons} from './Icons'
 
 const options = [
-    {value: 'open', label: 'Открыта'},
     {value: 'in_progress', label: 'В работе'},
     {value: 'done', label: 'Выполнена'},
     {value: 'cancelled', label: 'Отменена'},

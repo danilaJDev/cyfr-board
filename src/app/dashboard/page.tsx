@@ -24,6 +24,7 @@ export default async function DashboardPage() {
         {count: tasksCount},
         {data: recentTasks},
         {data: projects},
+        {count: permitsCount},
     ] = await Promise.all([
         supabase.from('projects').select('*', {count: 'exact', head: true}),
         supabase.from('tasks').select('*', {count: 'exact', head: true}),
@@ -37,6 +38,7 @@ export default async function DashboardPage() {
             .select('id, name, status, created_at')
             .order('created_at', {ascending: false})
             .limit(6),
+        supabase.from('permits').select('*', {count: 'exact', head: true}),
     ])
 
     const statusBuckets = Object.keys(taskStatusLabel).map((key) => ({
@@ -45,13 +47,7 @@ export default async function DashboardPage() {
         count: recentTasks?.filter((task) => task.status === key).length ?? 0,
     }))
 
-    const overdueCount =
-        recentTasks?.filter(
-            (task) =>
-                task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done',
-        ).length ?? 0
-
-    const totalRecent = recentTasks?.length ?? 0
+        const totalRecent = recentTasks?.length ?? 0
     const doneCount = recentTasks?.filter((t) => t.status === 'done').length ?? 0
     const completionPercent = totalRecent > 0 ? Math.round((doneCount / totalRecent) * 100) : 0
 
@@ -61,7 +57,7 @@ export default async function DashboardPage() {
                 <h1 className="text-3xl font-black tracking-tight t-fg sm:text-4xl text-balance">
                     Дашборд
                 </h1>
-                <p className="mt-1 text-sm t-muted">Обзор проектов и задач</p>
+                <p className="mt-1 text-sm t-muted">Обзор показателей</p>
             </header>
 
             {/* Stat cards */}
@@ -72,20 +68,23 @@ export default async function DashboardPage() {
                     icon={<Icons.Projects className="h-5 w-5"/>}
                     accentClass="status-accent"
                     trend="Под управлением"
+                    href="/dashboard/projects"
                 />
                 <StatCard
-                    title="Все задачи"
+                    title="Задачи"
                     value={tasksCount ?? 0}
                     icon={<Icons.Tasks className="h-5 w-5"/>}
                     accentClass="status-info"
                     trend={`${completionPercent}% выполнено`}
+                    href="/dashboard/tasks"
                 />
                 <StatCard
-                    title="Просрочено"
-                    value={overdueCount}
-                    icon={<Icons.AlertTriangle className="h-5 w-5"/>}
-                    accentClass={overdueCount > 0 ? 'status-danger' : 'status-success'}
-                    trend={overdueCount > 0 ? 'Требует внимания' : 'Всё по графику'}
+                    title="Разрешения"
+                    value={permitsCount ?? 0}
+                    icon={<Icons.File className="h-5 w-5"/>}
+                    accentClass='status-warning'
+                    trend='По всем проектам'
+                    href="/dashboard/permits"
                 />
             </div>
 
@@ -182,15 +181,18 @@ function StatCard({
                       icon,
                       accentClass,
                       trend,
+                      href,
                   }: {
     title: string
     value: number
     icon: React.ReactNode
     accentClass: string
     trend: string
+    href: string
 }) {
     return (
-        <article className="section-card transition hover:-translate-y-0.5">
+        <Link href={href} className="block">
+            <article className="section-card transition hover:-translate-y-0.5">
             <div className="flex items-start justify-between gap-3">
                 <div className={`chip ${accentClass} px-3 py-2 text-[13px]`}>
                     {icon}
@@ -201,7 +203,8 @@ function StatCard({
                 <p className="text-base font-bold t-fg sm:text-lg">{title}</p>
                 <p className="mt-0.5 text-4xl font-black tracking-tight t-fg sm:text-5xl">{value}</p>
             </div>
-        </article>
+            </article>
+        </Link>
     )
 }
 
