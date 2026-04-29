@@ -111,39 +111,3 @@ export default function ProjectCardActions({ projectId }: { projectId: string })
     </div>
   )
 }
-          el.style.borderColor = 'var(--app-border)'
-          el.style.color = 'var(--app-muted)'
-        }}
-      >
-        <Icons.Edit className="h-4 w-4" />
-      </Link>
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={loading}
-        style={{ ...iconBtnBase, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}
-        title="Удалить"
-        aria-label="Удалить проект"
-        onMouseEnter={e => {
-          if (loading) return
-          const el = e.currentTarget as HTMLElement
-          el.style.borderColor = 'var(--status-danger-border)'
-          el.style.background = 'var(--status-danger-bg)'
-          el.style.color = 'var(--status-danger-text)'
-        }}
-        onMouseLeave={e => {
-          const el = e.currentTarget as HTMLElement
-          el.style.borderColor = 'var(--app-border)'
-          el.style.background = 'var(--app-surface)'
-          el.style.color = 'var(--app-muted)'
-        }}
-      >
-        {loading ? (
-          <Icons.Loader className="h-4 w-4 animate-spin" />
-        ) : (
-          <Icons.Trash className="h-4 w-4" />
-        )}
-      </button>
-    </div>
-  )
-}
