@@ -58,15 +58,15 @@ export default function NewPermitPage() {
             <div className="mb-6 sm:mb-8">
                 <Link
                     href={`/dashboard/projects/${params.id}`}
-                    className="mb-3 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-cyan-400"
+                    className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
                     <Icons.ArrowLeft className="h-4 w-4" />
                     Назад к проекту
                 </Link>
-                <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+                <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
                     Новое разрешение
                 </h1>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm t-muted">
                     Зафиксируйте разрешения и сроки действия
                 </p>
             </div>
@@ -149,7 +149,7 @@ export default function NewPermitPage() {
                     {error && (
                         <p
                             role="alert"
-                            className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+                            className="alert-error"
                         >
                             {error}
                         </p>

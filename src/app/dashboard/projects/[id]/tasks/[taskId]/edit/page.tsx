@@ -132,7 +132,7 @@ export default function EditTaskPage() {
     if (fetching) {
         return (
             <div className="flex min-h-[40vh] items-center justify-center">
-                <Icons.Loader className="h-8 w-8 animate-spin text-cyan-400" />
+                <Icons.Loader className="h-8 w-8 animate-spin t-accent" />
             </div>
         )
     }
@@ -142,12 +142,12 @@ export default function EditTaskPage() {
             <div className="mb-6 sm:mb-8">
                 <Link
                     href={`/dashboard/projects/${projectId}/tasks/${taskId}`}
-                    className="mb-3 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-cyan-400"
+                    className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
                     <Icons.ArrowLeft className="h-4 w-4" />
                     Назад к задаче
                 </Link>
-                <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+                <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
                     Изменить задачу
                 </h1>
             </div>
@@ -228,7 +228,7 @@ export default function EditTaskPage() {
                     <div>
                         <label className="label-base">Ответственные</label>
                         {team.length === 0 ? (
-                            <p className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-3 text-xs text-slate-500">
+                            <p className="rounded-xl border border-dashed px-4 py-3 text-xs t-subtle" style={{ borderColor: 'var(--app-border)' }}>
                                 Нет доступных сотрудников
                             </p>
                         ) : (
@@ -240,8 +240,8 @@ export default function EditTaskPage() {
                                             key={member.id}
                                             className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition ${
                                                 checked
-                                                    ? 'border-cyan-500/50 bg-cyan-500/10 ring-2 ring-cyan-500/20'
-                                                    : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]'
+                                                    ? 'border-[var(--app-accent-ring)] bg-[var(--app-accent-subtle)] ring-2 ring-[var(--app-accent-ring)]'
+                                                    : 'glass-card rounded-xl'
                                             }`}
                                         >
                                             <input
@@ -250,14 +250,14 @@ export default function EditTaskPage() {
                                                 checked={checked}
                                                 onChange={() => toggleAssignee(member.id)}
                                             />
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-800 text-xs font-bold uppercase text-white">
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase text-white" style={{ background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)' }}>
                                                 {member.full_name?.[0] ?? '?'}
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <p className="truncate text-sm font-medium text-white">
+                                                <p className="truncate text-sm font-medium t-fg">
                                                     {member.full_name ?? 'Без имени'}
                                                 </p>
-                                                <p className="truncate text-xs capitalize text-slate-400">
+                                                <p className="truncate text-xs capitalize t-muted">
                                                     {member.role}
                                                 </p>
                                             </div>
@@ -270,7 +270,7 @@ export default function EditTaskPage() {
                                                 aria-hidden
                                             >
                                                 {checked && (
-                                                    <Icons.Check className="h-3 w-3 text-slate-950" />
+                                                    <Icons.Check className="h-3 w-3" style={{ color: "var(--app-bg)" }} />
                                                 )}
                                             </div>
                                         </label>
@@ -283,7 +283,7 @@ export default function EditTaskPage() {
                     {error && (
                         <div
                             role="alert"
-                            className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+                            className="alert-error"
                         >
                             {error}
                         </div>

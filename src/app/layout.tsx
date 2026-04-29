@@ -9,14 +9,29 @@ export const metadata: Metadata = {
   },
 }
 
+// Inline script injected BEFORE React hydration to prevent flash of wrong theme.
+const themeScript = `
+(function(){
+  try{
+    var t=localStorage.getItem('theme');
+    if(!t){t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';}
+    document.documentElement.setAttribute('data-theme',t);
+  }catch(e){}
+})();
+`
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ru">
-      <body>{children}</body>
+    <html lang="ru" suppressHydrationWarning>
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   )
 }

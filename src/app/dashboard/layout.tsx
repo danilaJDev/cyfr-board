@@ -24,7 +24,7 @@ export default async function DashboardLayout({
         .maybeSingle()
 
     return (
-        <div className="min-h-dvh bg-slate-950 text-white">
+        <div className="min-h-dvh bg-app">
             <Sidebar profile={profile} />
 
             <main className="lg:ml-72">

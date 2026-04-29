@@ -79,7 +79,7 @@ export default function EditProjectPage() {
     if (fetching) {
         return (
             <div className="flex min-h-[40vh] items-center justify-center">
-                <Icons.Loader className="h-8 w-8 animate-spin text-cyan-400" />
+                <Icons.Loader className="h-8 w-8 animate-spin t-accent" />
             </div>
         )
     }
@@ -89,12 +89,12 @@ export default function EditProjectPage() {
             <div className="mb-6 sm:mb-8">
                 <Link
                     href={`/dashboard/projects/${projectId}`}
-                    className="mb-3 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-cyan-400"
+                    className="mb-3 inline-flex items-center gap-2 text-sm t-muted transition hover:t-accent"
                 >
                     <Icons.ArrowLeft className="h-4 w-4" />
                     Назад к проекту
                 </Link>
-                <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+                <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">
                     Изменить проект
                 </h1>
             </div>
@@ -166,7 +166,7 @@ export default function EditProjectPage() {
                     {error && (
                         <div
                             role="alert"
-                            className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+                            className="alert-error"
                         >
                             {error}
                         </div>
