@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import {useMemo, useState} from 'react'
+import {useEffect, useMemo, useState, useTransition} from 'react'
 import {Icons} from '@/components/Icons'
 import {createClient} from '@/lib/supabase/client'
+import {useRouter} from 'next/navigation'
 
 type TaskItem = {
     id: string
@@ -32,9 +33,15 @@ function deadlineChipColor(deadline: string) {
 }
 
 export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
+    const router = useRouter()
+    const [isPending, startTransition] = useTransition()
     const [items, setItems] = useState(tasks)
     const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
     const supabase = createClient()
+    
+    useEffect(() => {
+        setItems(tasks)
+    }, [tasks])
 
     const grouped = useMemo(() => {
         const groups = new Map<string, TaskItem[]>()
@@ -65,6 +72,9 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
         if (error) {
             setItems((prev) => prev.map((i) => (i.id === task.id ? {...i, status: task.status} : i)))
         }
+        startTransition(() => {
+            router.refresh()
+        })
         setUpdatingTaskId(null)
     }
 
@@ -87,7 +97,7 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                                     <button
                                         type="button"
                                         onClick={() => toggleDone(task)}
-                                        disabled={updatingTaskId === task.id}
+                                        disabled={updatingTaskId === task.id || isPending}
                                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors"
                                         style={{
                                             borderColor: 'var(--app-border)',
