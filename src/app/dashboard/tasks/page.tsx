@@ -8,14 +8,15 @@ type AssigneeItem = { user?: { full_name?: string } | null }
 
 const filters = [
     {value: 'all', label: 'Все'},
+    {value: 'open', label: 'Открытые'},
     {value: 'in_progress', label: 'В работе'},
     {value: 'done', label: 'Выполненные'},
     {value: 'cancelled', label: 'Отменённые'},
 ]
 
 export default async function TasksPage({
-                                            searchParams,
-                                        }: {
+    searchParams,
+}: {
     searchParams: Promise<{ status?: string }>
 }) {
     const {status} = await searchParams
@@ -41,50 +42,49 @@ export default async function TasksPage({
     }
 
     const {data: tasks} = await query
-    const normalizedTasks = (tasks ?? [])
-        .filter((task) => task.status !== 'open')
-        .map((task) => {
-            const rawAssignees: AssigneeItem[] = (task.task_assignees ?? []) as never
-            const assignees = rawAssignees
-                .map((item) => item?.user?.full_name ?? '')
-                .filter((name): name is string => name.length > 0)
-            const projectName = Array.isArray(task.project)
-                ? task.project[0]?.name
-                : (task.project as { name?: string } | null)?.name
+    const normalizedTasks = (tasks ?? []).map((task) => {
+        const rawAssignees: AssigneeItem[] = (task.task_assignees ?? []) as never
+        const assignees = rawAssignees
+            .map((item) => item?.user?.full_name ?? '')
+            .filter((name): name is string => name.length > 0)
+        const projectName = Array.isArray(task.project)
+            ? task.project[0]?.name
+            : (task.project as { name?: string } | null)?.name
 
-            return {
-                id: task.id,
-                title: task.title,
-                status: task.status,
-                deadline: task.deadline,
-                project_id: task.project_id,
-                project_name: projectName ?? 'Без проекта',
-                assignees,
-            }
-        })
+        return {
+            id: task.id,
+            title: task.title,
+            status: task.status,
+            deadline: task.deadline,
+            project_id: task.project_id,
+            project_name: projectName ?? 'Без проекта',
+            assignees,
+        }
+    })
 
     return (
         <div className="animate-in">
-            {/* Header */}
             <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
                 <div>
                     <h1 className="text-2xl font-black tracking-tight t-fg sm:text-3xl">Задачи</h1>
                     <p className="mt-1 text-sm t-muted">
-                        Полный контроль и мониторинг по всем объектам
+                        Всего задач: {normalizedTasks.length}
                     </p>
                 </div>
                 {isAdmin && (
-                    <Link href="/dashboard/projects" className="btn-primary self-stretch justify-center py-3 sm:self-auto">
+                    <Link
+                        href="/dashboard/tasks/new"
+                        className="btn-primary self-stretch justify-center py-3 sm:self-auto"
+                    >
                         <Icons.Plus className="h-4 w-4"/>
                         Новая задача
                     </Link>
                 )}
             </div>
 
-            {/* Filter chips */}
             <div className="mb-6">
                 <MobileTaskFilter filters={filters} currentStatus={currentStatus}/>
-                <nav className="hidden min-w-max gap-2 sm:flex">
+                <nav className="hidden flex-wrap gap-2 sm:flex">
                     {filters.map((f) => {
                         const active = f.value === currentStatus
                         const href =
@@ -129,8 +129,14 @@ export default async function TasksPage({
                     </div>
                     <p className="text-base font-bold t-fg">Задач не найдено</p>
                     <p className="mt-1 text-sm t-subtle">
-                        Попробуйте изменить фильтр или создайте новую задачу
+                        Попробуйте изменить фильтр или создайте задачу в нужном проекте
                     </p>
+                    {isAdmin && (
+                        <Link href="/dashboard/projects" className="btn-secondary mt-5">
+                            <Icons.Projects className="h-4 w-4"/>
+                            Перейти к проектам
+                        </Link>
+                    )}
                 </div>
             )}
         </div>

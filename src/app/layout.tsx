@@ -1,7 +1,14 @@
 import type {Metadata} from 'next'
+import {Inter} from 'next/font/google'
 import {Analytics} from '@vercel/analytics/next'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import './globals.css'
+
+const inter = Inter({
+    subsets: ['latin', 'cyrillic'],
+    variable: '--font-inter',
+    display: 'swap',
+})
 
 export const metadata: Metadata = {
     title: 'CYFR Board',
@@ -22,12 +29,12 @@ const themeScript = `
 `
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+    children,
+}: Readonly<{
     children: React.ReactNode
 }>) {
     return (
-        <html lang="ru" suppressHydrationWarning>
+        <html lang="ru" suppressHydrationWarning className={inter.variable}>
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <head>
             <script dangerouslySetInnerHTML={{__html: themeScript}}/>

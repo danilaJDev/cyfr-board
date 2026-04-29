@@ -3,9 +3,9 @@
 import {useState} from 'react'
 import {createClient} from '@/lib/supabase/client'
 import {useRouter} from 'next/navigation'
-import {Icons} from './Icons'
 
 const options = [
+    {value: 'open', label: 'Открыта'},
     {value: 'in_progress', label: 'В работе'},
     {value: 'done', label: 'Выполнена'},
     {value: 'cancelled', label: 'Отменена'},
@@ -38,7 +38,7 @@ export default function TaskStatusSelect({
                 onChange={(e) => handleChange(e.target.value)}
                 disabled={loading}
                 aria-label="Изменить статус задачи"
-                className="input-base appearance-none pr-10 py-2.5 font-semibold"
+                className="btn-secondary py-2.5 w-full appearance-none pr-10"
                 style={{minWidth: '140px'}}
             >
                 {options.map((o) => (
@@ -47,14 +47,22 @@ export default function TaskStatusSelect({
                     </option>
                 ))}
             </select>
-            <div
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 t-muted"
-            >
-                {loading ? (
-                    <Icons.Loader className="h-4 w-4 animate-spin"/>
-                ) : (
-                    <Icons.ChevronDown className="h-4 w-4"/>
-                )}
+
+            {/* Стрелка */}
+            <div className="pointer-events-none absolute inset-y-0 right-[10px] flex items-center">
+                <svg
+                    className="h-4 w-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 9l-7 7-7-7"
+                    />
+                </svg>
             </div>
         </div>
     )

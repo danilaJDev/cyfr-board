@@ -110,7 +110,7 @@ export default function NewProjectPage() {
             <div className="section-card">
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label htmlFor="name" className="label-base">Название объекта *</label>
+                        <label htmlFor="name" className="label-base">Название проекта *</label>
                         <input id="name" type="text" value={form.name} onChange={(e) => set('name', e.target.value)} className="input-base" placeholder="Office 1801, VISION TOWER-1, Business Bay" required/>
                     </div>
 

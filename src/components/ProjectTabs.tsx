@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {Icons} from './Icons'
 
 const taskStatusLabels: Record<string, { label: string; chipClass: string }> = {
+    open: {label: 'Открыта', chipClass: 'status-info'},
     in_progress: {label: 'В работе', chipClass: 'status-accent'},
     done: {label: 'Выполнена', chipClass: 'status-success'},
     cancelled: {label: 'Отменена', chipClass: 'status-neutral'},
@@ -29,6 +30,7 @@ type Permit = {
     id: string
     permit_type: string
     status: string
+    issued_at?: string | null
     expires_at?: string | null
     notes?: string | null
 }
@@ -54,130 +56,77 @@ export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
 
     return (
         <div>
-            {/* Tab bar */}
             <div className="mb-5 -mx-4 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0">
-                <nav
-                    className="flex min-w-max gap-1 border-b"
-                    style={{borderColor: 'var(--app-border)'}}
-                    aria-label="Tabs"
-                >
+                <nav className="flex min-w-max gap-1 border-b" style={{borderColor: 'var(--app-border)'}} aria-label="Tabs">
                     {tabs.map(({key, label, count, icon: Icon}) => {
                         const active = activeTab === key
                         return (
-                            <button
-                                key={key}
-                                type="button"
-                                onClick={() => setActiveTab(key)}
+                            <button key={key} type="button" onClick={() => setActiveTab(key)}
                                 className="group relative -mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition-colors duration-200"
-                                style={{
-                                    borderBottomColor: active ? 'var(--app-accent-text)' : 'transparent',
-                                    color: active ? 'var(--app-accent-text)' : 'var(--app-muted)',
-                                }}
-                            >
+                                style={{borderBottomColor: active ? 'var(--app-accent-text)' : 'transparent', color: active ? 'var(--app-accent-text)' : 'var(--app-muted)'}}>
                                 <Icon className="h-4 w-4"/>
                                 {label}
-                                <span
-                                    className="rounded-full px-1.5 py-0.5 text-[10px] font-bold"
-                                    style={{
-                                        background: active ? 'var(--app-accent-subtle)' : 'var(--app-surface-2)',
-                                        color: active ? 'var(--app-accent-text)' : 'var(--app-muted)',
-                                    }}
-                                >
-                  {count}
-                </span>
+                                <span className="rounded-full px-1.5 py-0.5 text-[10px] font-bold"
+                                    style={{background: active ? 'var(--app-accent-subtle)' : 'var(--app-surface-2)', color: active ? 'var(--app-accent-text)' : 'var(--app-muted)'}}>
+                                    {count}
+                                </span>
                             </button>
                         )
                     })}
                 </nav>
             </div>
 
-            {/* Tasks tab */}
             {activeTab === 'tasks' && (
                 <div>
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="flex items-center gap-2 text-lg font-bold t-fg">
-                            <Icons.Tasks className="h-5 w-5 t-subtle"/>
-                            Задачи
+                            <Icons.Tasks className="h-5 w-5 t-subtle"/>Задачи
                         </h2>
                         {isAdmin && (
-                            <Link
-                                href={`/dashboard/projects/${project.id}/tasks/new`}
+                            <Link href={`/dashboard/projects/${project.id}/tasks/new`}
                                 className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all duration-200"
-                                style={{
-                                    borderColor: 'var(--app-accent-ring)',
-                                    background: 'var(--app-accent-subtle)',
-                                    color: 'var(--app-accent-text)',
-                                }}
-                            >
-                                <Icons.Plus className="h-4 w-4"/>
-                                Добавить
+                                style={{borderColor: 'var(--app-accent-ring)', background: 'var(--app-accent-subtle)', color: 'var(--app-accent-text)'}}>
+                                <Icons.Plus className="h-4 w-4"/>Добавить
                             </Link>
                         )}
                     </div>
-
                     {!project.tasks?.length ? (
-                        <EmptyTab
-                            icon={<Icons.Tasks className="h-7 w-7"/>}
-                            title="Задач пока нет"
-                            description="Создайте первую задачу для этого проекта"
-                        />
+                        <EmptyTab icon={<Icons.Tasks className="h-7 w-7"/>} title="Задач пока нет" description="Создайте первую задачу для этого проекта"/>
                     ) : (
-                        <div className="grid gap-3">
+                        <div className="grid gap-2.5">
                             {project.tasks.map((task) => {
-                                const ts = taskStatusLabels[task.status] ?? taskStatusLabels.in_progress
-                                const assignees = task.task_assignees
-                                    ?.map((a) => a.user?.full_name)
-                                    .filter(Boolean) as string[] | undefined
-                                const isOverdue =
-                                    task.deadline &&
-                                    new Date(task.deadline) < new Date() &&
-                                    task.status !== 'done'
-
+                                const ts = taskStatusLabels[task.status] ?? taskStatusLabels.open
+                                const assignees = task.task_assignees?.map((a) => a.user?.full_name).filter(Boolean) as string[] | undefined
+                                const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done'
+                                const isDone = task.status === 'done'
+                                const isCancelled = task.status === 'cancelled'
                                 return (
-                                    <Link
-                                        key={task.id}
-                                        href={`/dashboard/projects/${project.id}/tasks/${task.id}`}
-                                        className="group glass-card flex flex-col gap-3 rounded-2xl p-4 transition-all hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-                                    >
-                                        <div className="flex items-center gap-3 sm:gap-4">
-                                            <div
-                                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl t-subtle transition-colors"
-                                                style={{background: 'var(--app-surface-2)'}}
-                                            >
-                                                <Icons.TaskCheck className="h-5 w-5"/>
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="truncate font-bold t-fg">{task.title}</p>
-                                                {assignees && assignees.length > 0 && (
-                                                    <p className="mt-0.5 truncate text-xs t-subtle">
-                                                        {assignees.join(', ')}
-                                                    </p>
-                                                )}
-                                            </div>
+                                    <Link key={task.id} href={`/dashboard/projects/${project.id}/tasks/${task.id}`}
+                                        className="group glass-card flex items-center gap-3 rounded-2xl px-4 py-3 transition-all hover:-translate-y-0.5 sm:gap-4"
+                                        style={{opacity: isCancelled ? 0.65 : 1}}>
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors"
+                                            style={{background: isDone ? 'var(--status-success-bg)' : 'var(--app-surface-2)', color: isDone ? 'var(--status-success-text)' : 'var(--app-subtle)'}}>
+                                            {isDone ? <Icons.Check className="h-4 w-4"/> : <Icons.TaskCheck className="h-4 w-4"/>}
                                         </div>
-
-                                        <div
-                                            className="flex items-center justify-between gap-3 border-t pt-3 sm:gap-4 sm:border-0 sm:pt-0"
-                                            style={{borderColor: 'var(--app-border)'}}
-                                        >
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-sm font-semibold t-fg" style={{textDecoration: isDone || isCancelled ? 'line-through' : 'none'}}>
+                                                {task.title}
+                                            </p>
+                                            {assignees && assignees.length > 0 && (
+                                                <p className="mt-0.5 truncate text-xs t-subtle">{assignees.join(', ')}</p>
+                                            )}
+                                        </div>
+                                        <div className="flex shrink-0 items-center gap-2">
                                             {task.deadline && (
-                                                <div className="text-left sm:text-right">
-                                                    <p
-                                                        className="text-[10px] font-bold uppercase tracking-wider"
-                                                        style={{color: isOverdue ? 'var(--status-danger-text)' : 'var(--app-subtle)'}}
-                                                    >
-                                                        Дедлайн
-                                                    </p>
-                                                    <p
-                                                        className="text-xs font-medium"
-                                                        style={{color: isOverdue ? 'var(--status-danger-text)' : 'var(--app-fg)'}}
-                                                    >
+                                                <div className="hidden text-right sm:block">
+                                                    <p className="text-[10px] font-bold uppercase tracking-wider" style={{color: isOverdue ? 'var(--status-danger-text)' : 'var(--app-subtle)'}}>Дедлайн</p>
+                                                    <p className="text-xs font-medium" style={{color: isOverdue ? 'var(--status-danger-text)' : 'var(--app-fg)'}}>
                                                         {new Date(task.deadline).toLocaleDateString('ru-RU')}
                                                     </p>
                                                 </div>
                                             )}
                                             <span className={`chip ${ts.chipClass}`}>{ts.label}</span>
-                                            <Icons.ChevronRight className="hidden h-5 w-5 t-subtle sm:block"/>
+                                            <Icons.ChevronRight className="hidden h-4 w-4 t-subtle sm:block"/>
                                         </div>
                                     </Link>
                                 )
@@ -187,61 +136,54 @@ export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
                 </div>
             )}
 
-            {/* Permits tab */}
             {activeTab === 'permits' && (
                 <div>
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="flex items-center gap-2 text-lg font-bold t-fg">
-                            <Icons.File className="h-5 w-5 t-subtle"/>
-                            Разрешения
+                            <Icons.File className="h-5 w-5 t-subtle"/>Разрешения
                         </h2>
                         {isAdmin && (
-                            <Link
-                                href={`/dashboard/projects/${project.id}/permits/new`}
+                            <Link href={`/dashboard/projects/${project.id}/permits/new`}
                                 className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all duration-200"
-                                style={{
-                                    borderColor: 'var(--app-accent-ring)',
-                                    background: 'var(--app-accent-subtle)',
-                                    color: 'var(--app-accent-text)',
-                                }}
-                            >
-                                <Icons.Plus className="h-4 w-4"/>
-                                Добавить
+                                style={{borderColor: 'var(--app-accent-ring)', background: 'var(--app-accent-subtle)', color: 'var(--app-accent-text)'}}>
+                                <Icons.Plus className="h-4 w-4"/>Добавить
                             </Link>
                         )}
                     </div>
-
                     {!project.permits?.length ? (
-                        <EmptyTab
-                            icon={<Icons.File className="h-7 w-7"/>}
-                            title="Разрешений пока нет"
-                            description="Добавьте первое разрешение по проекту"
-                        />
+                        <EmptyTab icon={<Icons.File className="h-7 w-7"/>} title="Разрешений пока нет" description="Добавьте первое разрешение по проекту"/>
                     ) : (
-                        <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="grid gap-2.5 sm:grid-cols-2">
                             {project.permits.map((permit) => {
-                                const ps = permitStatusLabels[permit.status] ?? permitStatusLabels.in_progress
+                                const ps = permitStatusLabels[permit.status] ?? permitStatusLabels.pending
+                                const isExpired = permit.status === 'expired'
+                                const daysLeft = permit.expires_at
+                                    ? (new Date(permit.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                                    : null
+                                const isExpiringSoon = daysLeft !== null && daysLeft > 0 && daysLeft <= 14 && !isExpired
                                 return (
-                                    <div
-                                        key={permit.id}
-                                        className="glass-card flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-start sm:justify-between"
-                                    >
-                                        <div className="min-w-0">
-                                            <p className="truncate text-sm font-bold t-fg">{permit.permit_type}</p>
-                                            {permit.notes && (
-                                                <p className="mt-1 line-clamp-2 text-xs t-muted">{permit.notes}</p>
-                                            )}
+                                    <Link key={permit.id} href={`/dashboard/permits/${permit.id}`}
+                                        className="glass-card group flex flex-col gap-3 rounded-2xl p-4 transition-all hover:-translate-y-0.5"
+                                        style={{borderColor: isExpired ? 'var(--status-danger-border)' : isExpiringSoon ? 'var(--status-warning-border)' : undefined}}>
+                                        <div className="flex items-start justify-between gap-2">
+                                            <p className="min-w-0 flex-1 truncate text-sm font-bold t-fg">{permit.permit_type}</p>
+                                            <span className={`chip shrink-0 ${ps.chipClass}`}>{ps.label}</span>
                                         </div>
-                                        <div
-                                            className="flex shrink-0 flex-row items-center justify-between gap-2 sm:flex-col sm:items-end">
-                                            <span className={`chip ${ps.chipClass}`}>{ps.label}</span>
+                                        <div className="flex items-center justify-between gap-2 text-xs">
+                                            <span className="t-muted">
+                                                {permit.issued_at ? `с ${new Date(permit.issued_at).toLocaleDateString('ru-RU')}` : 'Дата не указана'}
+                                            </span>
                                             {permit.expires_at && (
-                                                <p className="text-[11px] t-subtle">
+                                                <span style={{color: isExpired ? 'var(--status-danger-text)' : isExpiringSoon ? 'var(--status-warning-text)' : 'var(--app-muted)'}}>
                                                     до {new Date(permit.expires_at).toLocaleDateString('ru-RU')}
-                                                </p>
+                                                </span>
                                             )}
                                         </div>
-                                    </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[11px] t-subtle">Открыть детали</span>
+                                            <Icons.ChevronRight className="h-4 w-4 t-subtle transition-transform group-hover:translate-x-0.5"/>
+                                        </div>
+                                    </Link>
                                 )
                             })}
                         </div>
@@ -252,24 +194,11 @@ export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
     )
 }
 
-function EmptyTab({
-                      icon,
-                      title,
-                      description,
-                  }: {
-    icon: React.ReactNode
-    title: string
-    description: string
-}) {
+function EmptyTab({icon, title, description}: {icon: React.ReactNode; title: string; description: string}) {
     return (
-        <div
-            className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-12 text-center"
-            style={{borderColor: 'var(--app-border)', background: 'var(--app-surface-2)'}}
-        >
-            <div
-                className="mb-3 flex h-14 w-14 items-center justify-center rounded-full t-subtle"
-                style={{background: 'var(--app-surface)'}}
-            >
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-12 text-center"
+            style={{borderColor: 'var(--app-border)', background: 'var(--app-surface-2)'}}>
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full t-subtle" style={{background: 'var(--app-surface)'}}>
                 {icon}
             </div>
             <p className="text-sm font-bold t-fg">{title}</p>
