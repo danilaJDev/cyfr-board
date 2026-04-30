@@ -8,7 +8,7 @@ export type PermitMeta = {
 
 export const EMPLOYEE_COUNT_PERMIT_TYPES = ['Contractor Access Permit ALTERATIONS']
 
-export function parsePermitNotes(rawNotes: string | null): PermitMeta {
+export function parsePermitNotes(rawNotes: string | null | undefined): PermitMeta {
     if (!rawNotes) return {}
     if (!rawNotes.startsWith('__PERMIT_META__')) return {notes: rawNotes}
 
