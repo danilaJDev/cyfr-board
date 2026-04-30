@@ -23,13 +23,13 @@ export default function EditProjectPage() {
     const [error, setError] = useState('')
     const [team, setTeam] = useState<TeamMember[]>([])
     const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
-    const [form, setForm] = useState({name: '', type: 'FITOUT', status: 'active', contract_signed_at: ''})
+    const [form, setForm] = useState({name: '', type: 'FITOUT', status: 'active', contract_signed_at: '', contract_number: ''})
 
     useEffect(() => {
         const loadPage = async () => {
             const [{data: members}, {data, error: fetchError}] = await Promise.all([
                 supabase.from('profiles').select('id, full_name, role').order('full_name', {ascending: true}),
-                supabase.from('projects').select('name, type, status, contract_signed_at, manager_id, project_assignees(user_id)').eq('id', projectId).single(),
+                supabase.from('projects').select('name, type, status, contract_signed_at, contract_number, manager_id, project_assignees(user_id)').eq('id', projectId).single(),
             ])
 
             if (members) setTeam(members as TeamMember[])
@@ -45,6 +45,7 @@ export default function EditProjectPage() {
                 type: data.type ?? 'FITOUT',
                 status: data.status ?? 'active',
                 contract_signed_at: data.contract_signed_at ? String(data.contract_signed_at).slice(0, 10) : '',
+                contract_number: data.contract_number ?? '',
             })
             const assignees = data.project_assignees?.map((row: { user_id: string }) => row.user_id) ?? []
             setSelectedAssignees(assignees.length > 0 ? assignees : (data.manager_id ? [data.manager_id] : []))
@@ -67,6 +68,7 @@ export default function EditProjectPage() {
             type: form.type,
             status: form.status,
             contract_signed_at: form.contract_signed_at || null,
+            contract_number: form.contract_number.trim() || null,
             manager_id: selectedAssignees[0] ?? null,
         }).eq('id', projectId)
 
@@ -197,10 +199,18 @@ export default function EditProjectPage() {
                         </div>
                     </div>
 
-                    <div><label htmlFor="contract_signed_at" className="label-base">Дата подписания
-                        договора</label><input id="contract_signed_at" type="date" value={form.contract_signed_at}
-                                               onChange={(e) => set('contract_signed_at', e.target.value)}
-                                               className="input-base"/></div>
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div>
+                            <label htmlFor="contract_number" className="label-base">Номер договора</label>
+                            <input id="contract_number" type="text" value={form.contract_number}
+                                   onChange={(e) => set('contract_number', e.target.value)}
+                                   className="input-base"/>
+                        </div>
+                        <div><label htmlFor="contract_signed_at" className="label-base">Дата подписания
+                            договора</label><input id="contract_signed_at" type="date" value={form.contract_signed_at}
+                                                   onChange={(e) => set('contract_signed_at', e.target.value)}
+                                                   className="input-base"/></div>
+                    </div>
 
                     <div>
                         <label className="label-base">Ответственные</label>

@@ -26,6 +26,7 @@ export default function NewProjectPage() {
         type: 'FITOUT',
         status: 'active',
         contract_signed_at: '',
+        contract_number: '',
     })
 
     useEffect(() => {
@@ -70,6 +71,7 @@ export default function NewProjectPage() {
             type: form.type,
             status: form.status,
             contract_signed_at: form.contract_signed_at || null,
+            contract_number: form.contract_number.trim() || null,
             created_by: user.id,
             manager_id: selectedAssignees[0] ?? user.id,
         }).select('id').single()
@@ -135,9 +137,15 @@ export default function NewProjectPage() {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div>
+                            <label htmlFor="contract_number" className="label-base">Номер договора</label>
+                            <input id="contract_number" type="text" value={form.contract_number} onChange={(e) => set('contract_number', e.target.value)} className="input-base" placeholder="Например: C-2026-042"/>
+                        </div>
+                        <div>
                         <label htmlFor="contract_signed_at" className="label-base">Дата подписания договора</label>
                         <input id="contract_signed_at" type="date" value={form.contract_signed_at} onChange={(e) => set('contract_signed_at', e.target.value)} className="input-base"/>
+                        </div>
                     </div>
 
                     <div>

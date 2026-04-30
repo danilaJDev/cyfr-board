@@ -107,6 +107,16 @@ export default async function ProjectsPage() {
                                     <span className={`chip shrink-0 ${status.chipClass}`}>
                                         {status.label}
                                     </span>
+                                    <span
+                                        className="chip shrink-0 uppercase"
+                                        style={{
+                                            background: 'color-mix(in oklab, var(--app-accent-subtle) 82%, transparent)',
+                                            borderColor: 'color-mix(in oklab, var(--app-accent-ring) 65%, var(--app-border) 35%)',
+                                            color: 'var(--app-accent-text)',
+                                        }}
+                                    >
+                                        {typeLabels[project.type] ?? project.type ?? '—'}
+                                    </span>
                                 </div>
 
                                 <h3 className="mb-5 line-clamp-2 text-lg font-bold leading-tight t-fg transition-colors group-hover:t-accent sm:text-[1.35rem]">
@@ -115,18 +125,6 @@ export default async function ProjectsPage() {
 
                                 <div className="space-y-3 border-t pt-4 text-sm"
                                      style={{borderColor: 'var(--app-border)'}}>
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="flex items-center gap-2 t-muted">
-                                            <Icons.File className="h-4 w-4"/>
-                                            Тип
-                                        </span>
-
-                                        <span className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide t-fg"
-                                              style={{background: 'var(--app-surface-2)'}}>
-                                            {typeLabels[project.type] ?? project.type ?? '—'}
-                                        </span>
-                                    </div>
-
                                     <div className="flex items-start justify-between gap-3">
                                         <span className="mt-1 flex items-center gap-2 t-muted">
                                             <Icons.User className="h-4 w-4"/>
