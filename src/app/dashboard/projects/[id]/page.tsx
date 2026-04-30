@@ -75,25 +75,25 @@ export default async function ProjectPage({params}: { params: Promise<{ id: stri
             </div>
 
             {/* Project info */}
-            <div className="section-card mb-6 grid grid-cols-1 gap-x-6 gap-y-4 sm:mb-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="section-card mb-6 grid grid-cols-1 gap-x-6 gap-y-4 sm:mb-8 sm:grid-cols-2 lg:grid-cols-4">
                 <InfoItem
                     icon={<Icons.User className="h-4 w-4 t-muted"/>}
                     label="Ответственные"
                     value={project.project_assignees?.length ? project.project_assignees.map((a: { user?: { full_name?: string } | null }) => a.user?.full_name).filter(Boolean).join(', ') : project.manager?.full_name}
                 />
                 <InfoItem
+                    icon={<Icons.File className="h-4 w-4 t-muted"/>}
+                    label="Номер договора"
+                    value={project.contract_number}
+                />
+                <InfoItem
                     icon={<Icons.Calendar className="h-4 w-4 t-muted"/>}
-                    label="Дата договора"
+                    label="Дата подписания"
                     value={
                         project.contract_signed_at
                             ? new Date(project.contract_signed_at).toLocaleDateString('ru-RU')
                             : null
                     }
-                />
-                <InfoItem
-                    icon={<Icons.File className="h-4 w-4 t-muted"/>}
-                    label="Номер договора"
-                    value={project.contract_number}
                 />
                 <InfoItem
                     icon={<Icons.Clock className="h-4 w-4 t-muted"/>}
@@ -126,7 +126,7 @@ function InfoItem({
     value: string | null | undefined
 }) {
     return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 lg:justify-center">
             <div
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
                 style={{background: 'var(--app-surface-2)'}}
