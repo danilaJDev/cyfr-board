@@ -56,7 +56,7 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
         return Array.from(groups.entries()).map(([projectName, projectTasks]) => ({
             projectName,
             tasks: projectTasks.sort((a, b) => {
-                const order: Record<string, number> = {open: 0, in_progress: 1, done: 3, cancelled: 4}
+                const order: Record<string, number> = {in_progress: 1, done: 3, cancelled: 4}
                 const aOrd = order[a.status] ?? 2
                 const bOrd = order[b.status] ?? 2
                 if (aOrd !== bOrd) return aOrd - bOrd
@@ -94,7 +94,7 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                     </div>
                     <div className="grid gap-2.5">
                         {group.tasks.map((task) => {
-                            const statusConfig = taskStatusLabels[task.status] ?? taskStatusLabels.open
+                            const statusConfig = taskStatusLabels[task.status] ?? taskStatusLabels.in_progress
                             const isDone = task.status === 'done'
                             const isCancelled = task.status === 'cancelled'
                             const isUpdating = updatingTaskId === task.id

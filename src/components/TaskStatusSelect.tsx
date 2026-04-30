@@ -5,7 +5,6 @@ import {createClient} from '@/lib/supabase/client'
 import {useRouter} from 'next/navigation'
 
 const options = [
-    {value: 'open', label: 'Открыта'},
     {value: 'in_progress', label: 'В работе'},
     {value: 'done', label: 'Выполнена'},
     {value: 'cancelled', label: 'Отменена'},

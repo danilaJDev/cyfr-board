@@ -3,14 +3,12 @@ import {Icons} from '@/components/Icons'
 import Link from 'next/link'
 
 const taskStatusLabel: Record<string, string> = {
-    open: 'Открыта',
     in_progress: 'В работе',
     done: 'Выполнена',
     cancelled: 'Отменена',
 }
 
 const taskBarColors: Record<string, string> = {
-    open: 'var(--status-info-text)',
     in_progress: 'var(--app-accent-text)',
     done: 'var(--status-success-text)',
     cancelled: 'var(--app-subtle)',
