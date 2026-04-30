@@ -91,6 +91,11 @@ export default async function ProjectPage({params}: { params: Promise<{ id: stri
                     }
                 />
                 <InfoItem
+                    icon={<Icons.File className="h-4 w-4 t-muted"/>}
+                    label="Номер договора"
+                    value={project.contract_number}
+                />
+                <InfoItem
                     icon={<Icons.Clock className="h-4 w-4 t-muted"/>}
                     label="Создан"
                     value={new Date(project.created_at).toLocaleDateString('ru-RU')}
