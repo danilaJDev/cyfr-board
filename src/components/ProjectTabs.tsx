@@ -1,13 +1,14 @@
 'use client'
 
-import {useState} from 'react'
+import {useMemo, useState, useTransition} from 'react'
 import Link from 'next/link'
 import {Icons} from './Icons'
 import {parsePermitNotes} from '@/lib/permits'
 import PermitCardDocs from '@/components/PermitCardDocs'
+import {createClient} from '@/lib/supabase/client'
+import {useRouter} from 'next/navigation'
 
 const taskStatusLabels: Record<string, { label: string; chipClass: string }> = {
-    open: {label: 'Открыта', chipClass: 'status-info'},
     in_progress: {label: 'В работе', chipClass: 'status-accent'},
     done: {label: 'Выполнена', chipClass: 'status-success'},
     cancelled: {label: 'Отменена', chipClass: 'status-neutral'},
@@ -50,6 +51,36 @@ type ProjectTabsProps = {
 
 export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
     const [activeTab, setActiveTab] = useState<'tasks' | 'permits'>('tasks')
+    const [statusFilter, setStatusFilter] = useState<'all' | 'in_progress' | 'done' | 'cancelled'>('all')
+    const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
+    const [items, setItems] = useState(project.tasks ?? [])
+    const [isPending, startTransition] = useTransition()
+    const router = useRouter()
+    const supabase = createClient()
+
+    const taskFilters = [
+        {value: 'all' as const, label: 'Все'},
+        {value: 'in_progress' as const, label: 'В работе'},
+        {value: 'done' as const, label: 'Выполнена'},
+        {value: 'cancelled' as const, label: 'Отменена'},
+    ]
+
+    const visibleTasks = useMemo(
+        () =>
+            items.filter((task) => {
+                const normalized = task.status === 'open' ? 'in_progress' : task.status
+                return statusFilter === 'all' ? true : normalized === statusFilter
+            }),
+        [items, statusFilter],
+    )
+
+    const updateTask = async (taskId: string, updates: Partial<Task>) => {
+        setUpdatingTaskId(taskId)
+        const {error} = await supabase.from('tasks').update(updates).eq('id', taskId)
+        if (!error) startTransition(() => router.refresh())
+        setUpdatingTaskId(null)
+        return !error
+    }
 
     const tabs = [
         {key: 'tasks' as const, label: 'Задачи', count: project.tasks?.length ?? 0, icon: Icons.Tasks},
@@ -92,49 +123,107 @@ export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
                             </Link>
                         )}
                     </div>
-                    {!project.tasks?.length ? (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                        {taskFilters.map((filter) => (
+                            <button
+                                key={filter.value}
+                                type="button"
+                                onClick={() => setStatusFilter(filter.value)}
+                                className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-all"
+                                style={statusFilter === filter.value ? {background: 'var(--app-accent)', color: 'var(--app-accent-fg)'} : {background: 'var(--app-surface-2)', color: 'var(--app-muted)'}}
+                            >
+                                {filter.label}
+                            </button>
+                        ))}
+                    </div>
+                    {!items.length ? (
                         <EmptyTab icon={<Icons.Tasks className="h-7 w-7"/>} title="Задач пока нет" description="Создайте первую задачу для этого проекта"/>
                     ) : (
                         <div className="grid gap-2.5">
-                            {project.tasks.map((task) => {
-                                const ts = taskStatusLabels[task.status] ?? taskStatusLabels.open
+                            {visibleTasks.map((task) => {
+                                const currentStatus = task.status === 'open' ? 'in_progress' : task.status
+                                const ts = taskStatusLabels[currentStatus] ?? taskStatusLabels.in_progress
                                 const assignees = task.task_assignees?.map((a) => a.user?.full_name).filter(Boolean) as string[] | undefined
-                                const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done'
-                                const isDone = task.status === 'done'
-                                const isCancelled = task.status === 'cancelled'
+                                const isOverdue = task.deadline && new Date(task.deadline) < new Date() && currentStatus !== 'done'
+                                const isDone = currentStatus === 'done'
+                                const isCancelled = currentStatus === 'cancelled'
+                                const isUpdating = updatingTaskId === task.id || isPending
                                 return (
-                                    <Link key={task.id} href={`/dashboard/projects/${project.id}/tasks/${task.id}`}
-                                        className="glass-card group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all hover:-translate-y-0.5 sm:gap-4 sm:px-5"
-                                        style={{borderColor: 'var(--app-border)', opacity: isCancelled ? 0.65 : 1}}>
-                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors"
-                                            style={{background: isDone ? 'var(--status-success-bg)' : 'var(--app-surface-2)', color: isDone ? 'var(--status-success-text)' : 'var(--app-subtle)'}}>
-                                            {isDone ? <Icons.Check className="h-4 w-4"/> : <Icons.TaskCheck className="h-4 w-4"/>}
-                                        </div>
-                                        <div className="min-w-0 flex-1">
+                                    <div key={task.id}
+                                         className="glass-card group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all hover:-translate-y-0.5 sm:gap-4 sm:px-5"
+                                         style={{borderColor: 'var(--app-border)', opacity: isCancelled ? 0.65 : 1}}>
+                                        <button type="button" disabled={isUpdating || isCancelled}
+                                                onClick={() => {
+                                                    const nextStatus = isDone ? 'in_progress' : 'done'
+                                                    const prevStatus = task.status
+                                                    setItems((prev) => prev.map((t) => t.id === task.id ? {...t, status: nextStatus} : t))
+                                                    updateTask(task.id, {status: nextStatus}).then((ok) => {
+                                                        if (!ok) setItems((prev) => prev.map((t) => t.id === task.id ? {...t, status: prevStatus} : t))
+                                                    })
+                                                }}
+                                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all"
+                                                style={{borderColor: isDone ? 'var(--status-success-border)' : 'var(--app-border-strong)', background: isDone ? 'var(--status-success-bg)' : 'var(--app-surface-2)', color: isDone ? 'var(--status-success-text)' : 'var(--app-subtle)'}}>
+                                            {isUpdating ? <Icons.Loader className="h-4 w-4 animate-spin"/> : <Icons.Check className="h-4 w-4"/>}
+                                        </button>
+                                        <Link href={`/dashboard/projects/${project.id}/tasks/${task.id}`} className="min-w-0 flex-1">
                                             <p className="truncate text-sm font-semibold t-fg" style={{textDecoration: isDone || isCancelled ? 'line-through' : 'none'}}>
                                                 {task.title}
                                             </p>
                                             {assignees && assignees.length > 0 && (
                                                 <p className="mt-0.5 truncate text-xs t-subtle">{assignees.join(', ')}</p>
                                             )}
-                                        </div>
+                                        </Link>
                                         <div className="hidden shrink-0 items-center gap-2 sm:flex">
-                                            {task.deadline && (
-                                                <span className={`chip ${isOverdue ? 'status-danger' : isDone ? 'status-neutral' : 'status-success'}`}>
-                                                    {new Date(task.deadline).toLocaleDateString('ru-RU')}
-                                                </span>
-                                            )}
-                                            <span className={`chip ${ts.chipClass}`}>{ts.label}</span>
+                                            <button type="button" disabled={isUpdating}
+                                                    className={`chip ${isOverdue ? 'status-danger' : isDone ? 'status-neutral' : 'status-success'}`}
+                                                    onClick={() => {
+                                                        const value = prompt('Введите дедлайн в формате YYYY-MM-DD', task.deadline ? String(task.deadline).slice(0, 10) : '')
+                                                        if (value === null) return
+                                                        const prevDeadline = task.deadline ?? null
+                                                        setItems((prev) => prev.map((t) => t.id === task.id ? {...t, deadline: value || null} : t))
+                                                        updateTask(task.id, {deadline: value || null}).then((ok) => {
+                                                            if (!ok) setItems((prev) => prev.map((t) => t.id === task.id ? {...t, deadline: prevDeadline} : t))
+                                                        })
+                                                    }}>
+                                                    {task.deadline ? new Date(task.deadline).toLocaleDateString('ru-RU') : 'Без дедлайна'}
+                                            </button>
+                                            <button type="button" disabled={isUpdating} className={`chip ${ts.chipClass}`} onClick={() => {
+                                                const cycle = ['in_progress', 'done', 'cancelled'] as const
+                                                const idx = cycle.indexOf(currentStatus as typeof cycle[number])
+                                                const next = cycle[(idx + 1) % cycle.length]
+                                                const prevStatus = task.status
+                                                setItems((prev) => prev.map((t) => t.id === task.id ? {...t, status: next} : t))
+                                                updateTask(task.id, {status: next}).then((ok) => {
+                                                    if (!ok) setItems((prev) => prev.map((t) => t.id === task.id ? {...t, status: prevStatus} : t))
+                                                })
+                                            }}>{ts.label}</button>
                                         </div>
                                         <div className="flex shrink-0 flex-col items-end gap-1.5 sm:hidden">
-                                            <span className={`chip ${ts.chipClass}`}>{ts.label}</span>
+                                            <button type="button" disabled={isUpdating} className={`chip ${ts.chipClass}`} onClick={() => {
+                                                const cycle = ['in_progress', 'done', 'cancelled'] as const
+                                                const idx = cycle.indexOf(currentStatus as typeof cycle[number])
+                                                const next = cycle[(idx + 1) % cycle.length]
+                                                const prevStatus = task.status
+                                                setItems((prev) => prev.map((t) => t.id === task.id ? {...t, status: next} : t))
+                                                updateTask(task.id, {status: next}).then((ok) => {
+                                                    if (!ok) setItems((prev) => prev.map((t) => t.id === task.id ? {...t, status: prevStatus} : t))
+                                                })
+                                            }}>{ts.label}</button>
                                             {task.deadline && (
-                                                <span className={`chip ${isOverdue ? 'status-danger' : isDone ? 'status-neutral' : 'status-success'}`}>
-                                                    {new Date(task.deadline).toLocaleDateString('ru-RU')}
-                                                </span>
+                                                <button type="button" disabled={isUpdating} className={`chip ${isOverdue ? 'status-danger' : isDone ? 'status-neutral' : 'status-success'}`} onClick={() => {
+                                                    const value = prompt('Введите дедлайн в формате YYYY-MM-DD', task.deadline ? String(task.deadline).slice(0, 10) : '')
+                                                    if (value === null) return
+                                                    const prevDeadline = task.deadline ?? null
+                                                    setItems((prev) => prev.map((t) => t.id === task.id ? {...t, deadline: value || null} : t))
+                                                    updateTask(task.id, {deadline: value || null}).then((ok) => {
+                                                        if (!ok) setItems((prev) => prev.map((t) => t.id === task.id ? {...t, deadline: prevDeadline} : t))
+                                                    })
+                                                }}>
+                                                    {task.deadline ? new Date(task.deadline).toLocaleDateString('ru-RU') : 'Без дедлайна'}
+                                                </button>
                                             )}
                                         </div>
-                                    </Link>
+                                    </div>
                                 )
                             })}
                         </div>

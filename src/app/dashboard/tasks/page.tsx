@@ -8,7 +8,6 @@ type AssigneeItem = { user?: { full_name?: string } | null }
 
 const filters = [
     {value: 'all', label: 'Все'},
-    {value: 'open', label: 'Открытые'},
     {value: 'in_progress', label: 'В работе'},
     {value: 'done', label: 'Выполненные'},
     {value: 'cancelled', label: 'Отменённые'},
