@@ -26,15 +26,20 @@ export default function Sidebar({profile}: SidebarProps) {
     const supabase = createClient()
 
     useEffect(() => {
-        setOpen(false)
-    }, [pathname])
-
-    useEffect(() => {
         if (typeof document === 'undefined') return
         document.body.style.overflow = open ? 'hidden' : ''
         return () => {
             document.body.style.overflow = ''
         }
+    }, [open])
+
+    useEffect(() => {
+        if (!open) return
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setOpen(false)
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
     }, [open])
 
     const handleLogout = async () => {
@@ -59,13 +64,13 @@ export default function Sidebar({profile}: SidebarProps) {
                 <Link
                     href="/dashboard"
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 rounded-xl p-1 transition-opacity hover:opacity-85"
+                    className="flex items-center gap-3 rounded-lg p-1 transition-opacity hover:opacity-85"
                 >
                     <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
                         style={{
-                            background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-                            boxShadow: '0 4px 14px rgba(99,102,241,0.30)',
+                            background: 'linear-gradient(135deg, #2563EB 0%, #0891B2 100%)',
+                            boxShadow: '0 4px 14px rgba(37,99,235,0.24)',
                         }}
                     >
                         <Icons.Building className="h-5 w-5 text-white"/>
@@ -93,6 +98,7 @@ export default function Sidebar({profile}: SidebarProps) {
                             key={href}
                             href={href}
                             onClick={() => setOpen(false)}
+                            aria-current={active ? 'page' : undefined}
                             className={`nav-item w-full${active ? ' active' : ''}`}
                         >
                             {active && (
@@ -111,7 +117,7 @@ export default function Sidebar({profile}: SidebarProps) {
             {/* Bottom: user card + theme toggle */}
             <div className="p-3">
                 <div
-                    className="rounded-2xl p-3"
+                    className="rounded-lg p-3"
                     style={{
                         background: 'var(--app-surface-2)',
                         border: '1px solid var(--app-border)',
@@ -121,7 +127,7 @@ export default function Sidebar({profile}: SidebarProps) {
                     <div className="mb-3 flex items-center gap-3">
                         <div
                             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold uppercase text-white shadow-md"
-                            style={{background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'}}
+                            style={{background: 'linear-gradient(135deg, #2563EB 0%, #0891B2 100%)'}}
                         >
                             {initials}
                         </div>
@@ -178,7 +184,7 @@ export default function Sidebar({profile}: SidebarProps) {
                     type="button"
                     onClick={() => setOpen(true)}
                     aria-label="Открыть меню"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200"
                     style={{
                         background: 'var(--app-surface-2)',
                         border: '1px solid var(--app-border)',
@@ -191,7 +197,7 @@ export default function Sidebar({profile}: SidebarProps) {
                 <Link href="/dashboard" className="flex items-center gap-2">
                     <div
                         className="flex h-8 w-8 items-center justify-center rounded-lg"
-                        style={{background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'}}
+                        style={{background: 'linear-gradient(135deg, #2563EB 0%, #0891B2 100%)'}}
                     >
                         <Icons.Building className="h-4 w-4 text-white"/>
                     </div>

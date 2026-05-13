@@ -117,7 +117,7 @@ export default async function TasksPage({
             </div>
 
             {normalizedTasks.length ? (
-                <TasksBoard tasks={normalizedTasks}/>
+                <TasksBoard key={currentStatus} tasks={normalizedTasks}/>
             ) : (
                 <div className="section-card flex flex-col items-center justify-center py-16 text-center">
                     <div

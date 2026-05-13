@@ -1,6 +1,7 @@
 'use client'
 
 import {useRouter} from 'next/navigation'
+import {Icons} from '@/components/Icons'
 
 type Filter = { value: string; label: string }
 
@@ -39,17 +40,8 @@ export default function MobileTaskFilter({
                 ))}
             </select>
 
-            {/* Кастомная стрелка */}
             <div className="pointer-events-none absolute inset-y-0 right-[10px] flex items-center">
-                <svg
-                    className="h-4 w-4 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
+                <Icons.ChevronDown className="h-4 w-4 t-subtle"/>
             </div>
         </div>
     )

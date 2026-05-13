@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import {useEffect, useMemo, useState, useTransition} from 'react'
+import {useMemo, useState, useTransition} from 'react'
 import {Icons} from '@/components/Icons'
 import {createClient} from '@/lib/supabase/client'
 import {useRouter} from 'next/navigation'
@@ -39,22 +39,33 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
     const [items, setItems] = useState(tasks)
+    const [query, setQuery] = useState('')
     const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
     const supabase = createClient()
 
-    useEffect(() => {
-        setItems(tasks)
-    }, [tasks])
-
     const grouped = useMemo(() => {
+        const normalizedQuery = query.trim().toLowerCase()
+        const visibleItems = normalizedQuery
+            ? items.filter((task) => {
+                const searchable = [
+                    task.title,
+                    task.project_name,
+                    ...task.assignees,
+                ].join(' ').toLowerCase()
+
+                return searchable.includes(normalizedQuery)
+            })
+            : items
+
         const groups = new Map<string, TaskItem[]>()
-        for (const task of items) {
+        for (const task of visibleItems) {
             const key = task.project_name || 'Без проекта'
             if (!groups.has(key)) groups.set(key, [])
             groups.get(key)!.push(task)
         }
         return Array.from(groups.entries()).map(([projectName, projectTasks]) => ({
             projectName,
+            projectId: projectTasks[0]?.project_id,
             tasks: projectTasks.sort((a, b) => {
                 const order: Record<string, number> = {in_progress: 1, done: 3, cancelled: 4}
                 const aOrd = order[a.status] ?? 2
@@ -65,7 +76,11 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
                 return aDeadline - bDeadline
             }),
         }))
-    }, [items])
+    }, [items, query])
+
+    const doneCount = items.filter((task) => task.status === 'done').length
+    const activeCount = items.filter((task) => task.status !== 'done' && task.status !== 'cancelled').length
+    const overdueCount = items.filter((task) => task.deadline && new Date(task.deadline) < new Date() && task.status !== 'done' && task.status !== 'cancelled').length
 
     const toggleDone = async (task: TaskItem) => {
         const nextStatus = task.status === 'done' ? 'in_progress' : 'done'
@@ -80,14 +95,48 @@ export default function TasksBoard({tasks}: { tasks: TaskItem[] }) {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
+            <div className="section-card space-y-4">
+                <label className="relative block">
+                    <span className="sr-only">Поиск задач</span>
+                    <Icons.Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 t-subtle"/>
+                    <input
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        className="input-base pl-10"
+                        placeholder="Поиск по задаче, проекту или ответственному"
+                    />
+                </label>
+                <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                    <span className="chip status-info">{activeCount} активных</span>
+                    <span className="chip status-success">{doneCount} выполнено</span>
+                    <span className={`chip ${overdueCount ? 'status-danger' : 'status-neutral'}`}>{overdueCount} просрочено</span>
+                </div>
+            </div>
+
+            {!grouped.length && (
+                <div className="section-card flex flex-col items-center justify-center py-14 text-center">
+                    <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full t-subtle" style={{background: 'var(--app-surface-2)'}}>
+                        <Icons.Search className="h-7 w-7"/>
+                    </div>
+                    <p className="text-base font-bold t-fg">Задачи не найдены</p>
+                    <p className="mt-1 text-sm t-subtle">Измените поиск или фильтр статуса</p>
+                </div>
+            )}
+
             {grouped.map((group) => (
                 <section key={group.projectName}>
                     <div className="mb-3 flex items-center gap-3 px-1">
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{background: 'var(--app-accent-subtle)'}}>
                             <Icons.Projects className="h-4 w-4 t-accent"/>
                         </div>
-                        <h2 className="text-base font-bold t-fg sm:text-lg">{group.projectName}</h2>
+                        {group.projectId ? (
+                            <Link href={`/dashboard/projects/${group.projectId}`} className="text-base font-bold t-fg transition-opacity hover:opacity-70 sm:text-lg">
+                                {group.projectName}
+                            </Link>
+                        ) : (
+                            <h2 className="text-base font-bold t-fg sm:text-lg">{group.projectName}</h2>
+                        )}
                         <span className="rounded-full px-2 py-0.5 text-[15px] font-semibold t-accent" style={{background: 'var(--app-accent-subtle)'}}>
                             {group.tasks.length}
                         </span>

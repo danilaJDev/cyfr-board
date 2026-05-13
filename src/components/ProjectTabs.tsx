@@ -54,6 +54,7 @@ export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
     const [statusFilter, setStatusFilter] = useState<'all' | 'in_progress' | 'done' | 'cancelled'>('all')
     const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
     const [items, setItems] = useState(project.tasks ?? [])
+    const [nowMs] = useState(() => new Date().getTime())
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
     const supabase = createClient()
@@ -255,7 +256,7 @@ export default function ProjectTabs({project, isAdmin}: ProjectTabsProps) {
                                 const docs = meta.documents ?? []
                                 const isExpired = permit.status === 'expired'
                                 const daysLeft = permit.expires_at
-                                    ? (new Date(permit.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                                    ? (new Date(permit.expires_at).getTime() - nowMs) / (1000 * 60 * 60 * 24)
                                     : null
                                 const isExpiringSoon = daysLeft !== null && daysLeft > 0 && daysLeft <= 14 && !isExpired
                                 return (

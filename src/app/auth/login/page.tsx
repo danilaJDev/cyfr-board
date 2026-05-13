@@ -66,29 +66,17 @@ export default async function LoginPage({
 
     return (
         <div className="relative flex min-h-dvh items-center justify-center px-4 py-10 sm:px-6 bg-app">
-            {/* Decorative blobs */}
-            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-                <div
-                    className="absolute -left-32 top-1/4 h-96 w-96 rounded-full blur-3xl opacity-40"
-                    style={{background: 'var(--app-accent-subtle)'}}
-                />
-                <div
-                    className="absolute -right-32 bottom-1/4 h-96 w-96 rounded-full blur-3xl opacity-30"
-                    style={{background: 'var(--app-accent-subtle)'}}
-                />
-            </div>
-
             <div
-                className="glass relative w-full max-w-md rounded-3xl p-6 shadow-2xl sm:p-8 animate-in"
+                className="glass relative w-full max-w-md rounded-lg p-6 shadow-2xl sm:p-8 animate-in"
                 style={{boxShadow: 'var(--card-shadow)'}}
             >
                 {/* Logo */}
                 <div className="mb-6 flex items-center gap-3 sm:gap-4">
                     <div
-                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-lg"
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg shadow-lg"
                         style={{
-                            background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-                            boxShadow: '0 4px 14px rgba(99,102,241,0.3)'
+                            background: 'linear-gradient(135deg, #2563EB 0%, #0891B2 100%)',
+                            boxShadow: '0 4px 14px rgba(37,99,235,0.24)'
                         }}
                     >
                         <Image

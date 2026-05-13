@@ -35,7 +35,6 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="ru" suppressHydrationWarning className={inter.variable}>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <head>
             <script dangerouslySetInnerHTML={{__html: themeScript}}/>
         </head>

@@ -32,8 +32,9 @@ export default async function PermitPage({params}: { params: Promise<{ permitId:
     const meta = parsePermitNotes(permit.notes)
     const status = permitStatusLabels[permit.status] ?? permitStatusLabels.pending
     const isExpired = permit.status === 'expired'
+    const now = new Date().getTime()
     const daysLeft = permit.expires_at
-        ? (new Date(permit.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        ? (new Date(permit.expires_at).getTime() - now) / (1000 * 60 * 60 * 24)
         : null
     const isExpiringSoon = daysLeft !== null && daysLeft > 0 && daysLeft <= 14 && !isExpired
 
