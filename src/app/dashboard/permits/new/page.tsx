@@ -5,7 +5,7 @@ import {createClient} from '@/lib/supabase/client'
 import {useRouter} from 'next/navigation'
 import Link from 'next/link'
 import {Icons} from '@/components/Icons'
-import {EMPLOYEE_COUNT_PERMIT_TYPES, PermitDocument, parsePermitNotes, serializePermitNotes} from '@/lib/permits'
+import {EMPLOYEE_COUNT_PERMIT_TYPES, PermitDocument, serializePermitNotes} from '@/lib/permits'
 
 type Project = { id: string; name: string; status: string }
 

@@ -29,7 +29,7 @@ export default function EditTaskPage() {
         title: '',
         description: '',
         notes: '',
-        status: 'open',
+        status: 'in_progress',
         deadline: '',
     })
 
@@ -59,7 +59,7 @@ export default function EditTaskPage() {
                 title: task.title ?? '',
                 description: task.description ?? '',
                 notes: task.notes ?? '',
-                status: task.status ?? 'open',
+                status: task.status ?? 'in_progress',
                 deadline: task.deadline ? String(task.deadline).slice(0, 10) : '',
             })
             setSelectedAssignees(
@@ -205,7 +205,6 @@ export default function EditTaskPage() {
                                 onChange={(e) => set('status', e.target.value)}
                                 className="input-base"
                             >
-                                <option value="open">Открыта</option>
                                 <option value="in_progress">В работе</option>
                                 <option value="done">Выполнена</option>
                                 <option value="cancelled">Отменена</option>

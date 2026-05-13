@@ -10,7 +10,6 @@ type Project = { id: string; name: string; status: string }
 type TeamMember = { id: string; full_name: string | null; role: string | null }
 
 const statusOptions = [
-    {value: 'open', label: 'Открыта'},
     {value: 'in_progress', label: 'В работе'},
 ]
 
@@ -29,7 +28,7 @@ export default function NewTaskPage() {
         title: '',
         description: '',
         notes: '',
-        status: 'open',
+        status: 'in_progress',
         deadline: '',
     })
 

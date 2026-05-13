@@ -8,7 +8,6 @@ type AssigneeItem = { user?: { full_name?: string } | null }
 
 const filters = [
     {value: 'all', label: 'Все'},
-    {value: 'open', label: 'Открытые'},
     {value: 'in_progress', label: 'В работе'},
     {value: 'done', label: 'Выполненные'},
     {value: 'cancelled', label: 'Отменённые'},
@@ -118,7 +117,7 @@ export default async function TasksPage({
             </div>
 
             {normalizedTasks.length ? (
-                <TasksBoard tasks={normalizedTasks}/>
+                <TasksBoard key={currentStatus} tasks={normalizedTasks}/>
             ) : (
                 <div className="section-card flex flex-col items-center justify-center py-16 text-center">
                     <div

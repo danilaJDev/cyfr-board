@@ -10,26 +10,26 @@
     color-scheme: light;
 
     /* ── Backgrounds ─────────────────────────────── */
-    --app-bg: #F0F4FF;
+    --app-bg: #F6F7F9;
     --app-surface: #FFFFFF;
-    --app-surface-2: #E8EEFF;
+    --app-surface-2: #F1F4F8;
 
     /* ── Text ────────────────────────────────────── */
     --app-fg: #0F1629;
-    --app-muted: #4A5572;
-    --app-subtle: #8896B0;
+    --app-muted: #4B5565;
+    --app-subtle: #7C8798;
 
     /* ── Borders ─────────────────────────────────── */
-    --app-border: #D4DCF0;
-    --app-border-strong: #B3BEDB;
+    --app-border: #DDE3EC;
+    --app-border-strong: #B8C2D2;
 
     /* ── Accent (Indigo) ─────────────────────────── */
-    --app-accent: #4F46E5;
-    --app-accent-hover: #4338CA;
+    --app-accent: #2563EB;
+    --app-accent-hover: #1D4ED8;
     --app-accent-fg: #FFFFFF;
-    --app-accent-subtle: rgba(79, 70, 229, 0.09);
-    --app-accent-ring: rgba(79, 70, 229, 0.22);
-    --app-accent-text: #4F46E5;
+    --app-accent-subtle: rgba(37, 99, 235, 0.09);
+    --app-accent-ring: rgba(37, 99, 235, 0.22);
+    --app-accent-text: #2563EB;
 
     /* ── Status: Success ─────────────────────────── */
     --status-success-text: #16A34A;
@@ -58,11 +58,11 @@
 
     /* ── Sidebar ─────────────────────────────────── */
     --sidebar-bg: #FFFFFF;
-    --sidebar-border: #DDE3F5;
+    --sidebar-border: #E1E6EF;
 
     /* ── Shadows ─────────────────────────────────── */
-    --card-shadow: 0 1px 4px rgba(15, 22, 41, 0.06), 0 4px 16px rgba(15, 22, 41, 0.04);
-    --sidebar-shadow: 2px 0 20px rgba(15, 22, 41, 0.05);
+    --card-shadow: 0 1px 2px rgba(15, 22, 41, 0.05), 0 10px 24px rgba(15, 22, 41, 0.04);
+    --sidebar-shadow: 1px 0 16px rgba(15, 22, 41, 0.05);
 }
 
 [data-theme="dark"] {
@@ -152,26 +152,10 @@ body {
     min-height: 100dvh;
     overflow-x: hidden;
     transition: background-color 0.25s ease, color 0.2s ease;
-    background-image: radial-gradient(ellipse at 10% 15%, rgba(79, 70, 229, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse at 90% 5%, rgba(99, 102, 241, 0.04) 0%, transparent 50%);
-    background-attachment: fixed;
 }
 
 [data-theme="dark"] body {
-    background-image: radial-gradient(ellipse at 12% 18%, rgba(99, 102, 241, 0.18) 0%, transparent 46%),
-    radial-gradient(ellipse at 88% 8%, rgba(129, 140, 248, 0.12) 0%, transparent 46%),
-    radial-gradient(ellipse at 50% 110%, rgba(79, 70, 229, 0.10) 0%, transparent 50%);
-    background-attachment: fixed;
-}
-
-@media (max-width: 768px) {
-    body {
-        background-attachment: scroll;
-    }
-
-    [data-theme="dark"] body {
-        background-attachment: scroll;
-    }
+    background-image: none;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -190,7 +174,7 @@ body {
     }
 
     .t-subtle {
-        color: #20d1db !important;
+        color: var(--app-subtle);
     }
 
     .t-accent {
@@ -245,7 +229,7 @@ body {
     }
 
     .section-card {
-        @apply rounded-2xl p-5 sm:p-6;
+        @apply rounded-lg p-5 sm:p-6;
         background-color: var(--app-surface);
         border: 1px solid var(--app-border);
         box-shadow: var(--card-shadow);
@@ -253,22 +237,22 @@ body {
 
     /* ── Buttons ─────────────────────────────────── */
     .btn-primary {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-[15px] font-semibold
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-[15px] font-semibold
         transition-all duration-200 active:scale-[0.98]
         disabled:pointer-events-none disabled:opacity-60;
         background-color: var(--app-accent);
         color: var(--app-accent-fg);
-        box-shadow: 0 2px 8px var(--app-accent-ring);
+        box-shadow: 0 1px 3px var(--app-accent-ring);
     }
 
     .btn-primary:hover {
         background-color: var(--app-accent-hover);
-        box-shadow: 0 4px 16px var(--app-accent-ring);
+        box-shadow: 0 6px 18px var(--app-accent-ring);
         transform: translateY(-1px);
     }
 
     .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-[15px] font-semibold
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-[15px] font-semibold
         transition-all duration-200 active:scale-[0.98];
         background-color: var(--app-surface-2);
         border: 1.5px solid var(--app-border-strong);
@@ -282,7 +266,7 @@ body {
     }
 
     .btn-ghost {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-[15px] font-medium
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-[15px] font-medium
         transition-all duration-200 active:scale-[0.98];
         color: var(--app-muted);
     }
@@ -293,7 +277,7 @@ body {
     }
 
     .btn-danger {
-        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-[15px] font-semibold
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-[15px] font-semibold
         transition-all duration-200 disabled:opacity-60;
         background-color: var(--status-danger-bg);
         border: 1px solid var(--status-danger-border);
@@ -307,7 +291,7 @@ body {
 
     /* ── Forms ───────────────────────────────────── */
     .input-base {
-        @apply w-full rounded-xl px-4 py-3 text-[15px] font-medium outline-none transition-all duration-200 disabled:opacity-60;
+        @apply w-full rounded-lg px-4 py-3 text-[15px] font-medium outline-none transition-all duration-200 disabled:opacity-60;
         background-color: var(--app-surface-2);
         border: 1.5px solid var(--app-border);
         color: var(--app-fg);
@@ -327,7 +311,7 @@ body {
 
     .label-base {
         @apply mb-1.5 block text-xs font-semibold uppercase tracking-widest;
-        color: #20d1db;
+        color: var(--app-muted);
         letter-spacing: 0.07em;
     }
 
@@ -397,7 +381,7 @@ body {
 
     /* ── Sidebar nav item ────────────────────────── */
     .nav-item {
-        @apply relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[15px] font-medium
+        @apply relative flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-[15px] font-medium
         transition-all duration-200;
         color: var(--app-muted);
     }
@@ -539,7 +523,9 @@ textarea {
 }
 
 .truncate {
-    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 select option {
